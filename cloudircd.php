@@ -282,18 +282,23 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  function write_client_numeric_notenoughparams ($command) {
   return $this->write_client_numeric('461',array($command,'Not enough parameters.'));
  }
+ function fullnick ($nick) {
+  $user=$this->get_user($nick);
+  return $nick.'!'.$user['user'].'@'.$user['host'];
+ }
  function write_client_irc_join ($nick,$channel) {
   $ircchannel=$this->channel2ircchannel($channel);
   $user=$this->get_user($nick);
   $shortnick=preg_replace(',^/.*/,','',$nick);
-  $fullnick=$nick.'!'.$shortnick.'@'.$shortnick;
-  return $this->write_client_irc($fullnick,'JOIN',array($ircchannel));
+  $fullnick=$nick.'!'.$user['user'].'@'.$user['host'];
+  return $this->write_client_irc($this->fullnick($nick),'JOIN',array($ircchannel));
  }
  function write_client_irc_part ($nick,$channel,$reason=NULL) {
   $ircchannel=$this->channel2ircchannel($channel);
+  $user=$this->get_user($nick);
   $shortnick=preg_replace(',^/.*/,','',$nick);
-  $fullnick=$nick.'!'.$shortnick.'@'.$shortnick;
-  return $this->write_client_irc($fullnick,'PART',array($ircchannel,$reason));
+  $fullnick=$nick.'!'.$user['user'].'@'.$user['host'];
+  return $this->write_client_irc($this->fullnick($nick),'PART',array($ircchannel,$reason));
  }
  function irc_send_numerics () {
   $this->write_client_numeric('001','Welcome to the Internet Relay Network');
@@ -543,7 +548,7 @@ debug('irc',1,'received: '.$p);
     if ($p['DST']===$this->nick()) $icare=1;
     if ($icare) {
      $ircchan=$this->channel2ircchannel($p['DST']);
-     $this->write_client_irc($p['SRC'],'PRIVMSG',array($ircchan,$p['MSG']));
+     $this->write_client_irc($this->fullnick($p['SRC']),'PRIVMSG',array($ircchan,$p['MSG']));
     }
     return TRUE;
    case 'ENC': return TRUE;
