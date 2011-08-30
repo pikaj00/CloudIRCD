@@ -1,6 +1,6 @@
 <?php
 
-function debug ($sub,$pri,$str) { fprintf(STDERR,"$sub:$pri [%s]\n",$str); }
+function debug ($sub,$pri,$str) { fprintf(STDERR,getmypid().":$sub:$pri [%s]\n",$str); }
 
 include 'libudpmsg4.php';
 
