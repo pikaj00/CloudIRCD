@@ -1,6 +1,6 @@
 <?php
 
-function debug ($str) { fprintf(STDERR,"%s\n",$str); }
+function debug ($sub,$pri,$str) { fprintf(STDERR,"$sub:$pri [%s]\n",$str); }
 
 include 'libudpmsg4.php';
 
@@ -87,8 +87,8 @@ class irc_packet {
   return $ret;
  }
  static function construct ($line) {
-//debug("line=$line;");
-  $list=explode(' :',$line);
+debug('irc',1,"line=$line");
+  $list=explode(' :',$line,2);
   $parts=explode(' ',$list[0]);
   if (isset($list[1])) array_push($parts,$list[1]);
   if ($line[0]===':') $prefix=array_shift($parts); else $prefix=NULL;
@@ -279,6 +279,9 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   array_unshift($fargs,$this->nick());
   return $this->write_client_irc_from_server($cmd,$fargs);
  }
+ function write_client_numeric_notenoughparams ($command) {
+  return $this->write_client_numeric('461',array($command,'Not enough parameters.'));
+ }
  function write_client_irc_join ($nick,$channel) {
   $ircchannel=$this->channel2ircchannel($channel);
   $user=$this->get_user($nick);
@@ -428,15 +431,19 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     return $this->write_hub($p->framed());
     return FALSE;
    case 'JOIN':
-    return $this->join_channel($p->args[0]);
+    foreach (explode(',',$p->args[0]) as $channel)
+     if (!$this->join_channel($channel)) return FALSE;
+    return TRUE;
    case 'PART':
-    return $this->part_channel($p->args[0],@$p->args[1]);
+    foreach (explode(',',$p->args[0]) as $channel)
+     if (!$this->part_channel($channel,@$p->args[1])) return FALSE;
+    return TRUE;
    case 'QUIT':
     exit(0);
    case 'NICK':
     return $this->irc_set_nick($p->args[0]);
    case 'PING':
-    return $this->write_client_irc_from_server('PONG',array(@$p->args[0]));
+    return $this->write_client_irc_from_server('PONG',array($this->hostname,@$p->args[0]));
    case 'MODE':
     if (!isset($p->args[0])) return FALSE;
     $target=$this->ircchannel2channel($p->args[0]);
@@ -470,12 +477,23 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      if (!$this->write_client_numeric('322',array($ircchannel,$count,'[+nt]'))) return FALSE;
     }
     return TRUE;
+   case 'USER':
+    return TRUE;
+   case 'USERHOST':
+    if (!isset($p->args[0])) return $this->write_client_numeric_notenoughparams($p->cmd);
+    $user=$this->get_user($p->args[0]);
+    $this->write_client_numeric('302',$user['nick']."=+".$user['user'].'@'.$user['host']);
+    return TRUE;
    default:
-//debug($p);
+debug('irc',1,'received: '.$p);
     return FALSE;
   }
  }
  function udpmsg4_do ($p) {
+/*
+:dBZ!user@949DD1.5D28CF.4EA2CF.F6DE5C QUIT :irc5.srn.ano pbx.namek.ano
+:dBZ!user@949DD1.5D28CF.4EA2CF.F6DE5C JOIN :#anonet
+*/
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!is_a($p,'udpmsg4_packet')) $p=udpmsg4_packet::parse($p);
   if (($p===FALSE)||($p===NULL)) return $p;
@@ -489,17 +507,14 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      $this->join_user_to_channel($p['SRC'],$p['DST']);
     $icare=0;
     if ($this->am_joined($p['DST'])) $icare=1;
-    if ($icare) {
-     $ircchannel=$this->channel2ircchannel($p['DST']);
-     $this->write_client_irc_join($p['SRC'],$p['DST']);
-//     $this->write_client_irc($p['SRC'],'JOIN',array($ircchannel));
-    }
+    if ($icare) $this->write_client_irc_join($p['SRC'],$p['DST']);
     return TRUE;
    case 'PART':
     if ($p['BC']) return TRUE;
+    $icare=0;
     if ($this->user_is_joined($p['SRC'],$p['DST'])) {
      $this->part_user_from_channel($p['SRC'],$p['DST']);
-     if ($this->am_joined($p['DST'])) $icare=1; else $icare=0;
+     if ($this->am_joined($p['DST'])) $icare=1;
     }
     if ($icare) {
      $ircchannel=$this->channel2ircchannel($p['DST']);
@@ -525,6 +540,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
       $this->write_client_irc_join($p['SRC'],$p['DST']);
      }
     }
+    if ($p['DST']===$this->nick()) $icare=1;
     if ($icare) {
      $ircchan=$this->channel2ircchannel($p['DST']);
      $this->write_client_irc($p['SRC'],'PRIVMSG',array($ircchan,$p['MSG']));
@@ -532,7 +548,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     return TRUE;
    case 'ENC': return TRUE;
    default:
-//debug("received udpmsg4 packet CMD=[".$p['CMD']."]");
+debug('udpmsg4',1,"received CMD=".$p['CMD']);
     return FALSE;
   }
  }
