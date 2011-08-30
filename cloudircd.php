@@ -306,6 +306,11 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $fullnick=$nick.'!'.$user['user'].'@'.$user['host'];
   return $this->write_client_irc($this->fullnick($nick),'PART',array($ircchannel,$reason));
  }
+ function write_client_irc_quit ($nick,$reason=NULL) {
+  $user=$this->get_user($nick);
+  $fullnick=$nick.'!'.$user['user'].'@'.$user['host'];
+  return $this->write_client_irc($this->fullnick($nick),'QUIT',array($reason));
+ }
  function irc_send_numerics () {
   $this->write_client_numeric('001','Welcome to the Internet Relay Network');
   $this->write_client_numeric('002','Your host is '.$this->hostname.', running version cloudircd');
@@ -525,6 +530,8 @@ debug('irc',1,'received: '.$p);
 /*
 :dBZ!user@949DD1.5D28CF.4EA2CF.F6DE5C QUIT :irc5.srn.ano pbx.namek.ano
 :dBZ!user@949DD1.5D28CF.4EA2CF.F6DE5C JOIN :#anonet
+:/A1/dBZ QUIT :irc.r101.ano irc5.srn.ano
+:/A1/dBZ!dBZ@dBZ JOIN :#anonet
 */
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!is_a($p,'udpmsg4_packet')) $p=udpmsg4_packet::parse($p);
@@ -560,7 +567,7 @@ debug('irc',1,'received: '.$p);
       $this->part_user_from_channel($p['SRC'],$k);
       if ($this->am_joined($k)) $icare=1;
      }
-    if ($icare) $this->write_client_irc($this->map_nick($p['SRC']),'QUIT',array($p['REASON']));
+    if ($icare) $this->write_client_irc_quit($p['SRC'],$p['REASON']);
     return TRUE;
    case 'MSG':
     $icare=0;
