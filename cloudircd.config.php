@@ -8,6 +8,8 @@ $config=array(
  'ircnet'=>'test',
  'hostname'=>'irc6.srn.ano',
  'motd'=>rtrim("Thank you for trying cloudircd.\nhttp://www.srw.ano/cloudircd\nPlease report bugs to /NNN/somerandomnick :-]\n"),
+// 'nick_map_function'=>create_function('$nick','return str_rot13($nick);'),
+// 'nick_unmap_function'=>create_function('$nick','return str_rot13($nick);'),
 );
 
 ?>

@@ -166,6 +166,10 @@ class cloudircd {
    $new->config['ircnet']=$new->config['udpmsg4_client']['netname'];
   if (!isset($new->config['hostname']))
    $new->config['hostname']='cloudircd';
+  if (isset($new->config['nick_map_function']))
+   $new->map_function=$new->config['nick_map_function'];
+  if (isset($new->config['nick_unmap_function']))
+   $new->unmap_function=$new->config['nick_unmap_function'];
   $new->hostname=$new->config['hostname'];
   $new->udpmsg4_client = new udpmsg4_client($new->config['udpmsg4_client']);
   if (!$new->irc_intro()) return FALSE;
