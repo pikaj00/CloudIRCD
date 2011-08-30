@@ -1,2 +1,0 @@
-#!/bin/sh
-exec tcpserver -l irc6.srn.ano 1.0.27.120 6667 tcpclient irc3.srn.ano 15783 php cloudircd.php

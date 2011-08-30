@@ -1,0 +1,3 @@
+#!/bin/sh
+source config.ircd
+exec tcpserver -l "`cat env/hostname`" "`cat env/ip`" 6667 tcpclient "`cat env/hubip`" 15783 php cloudircd.php
