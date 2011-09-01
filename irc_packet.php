@@ -17,7 +17,7 @@ debug('irc',1,"line=$line");
   $list=explode(' :',$line,2);
   $parts=explode(' ',$list[0]);
   if (isset($list[1])) array_push($parts,$list[1]);
-  if ($line[0]===':') $prefix=array_shift($parts); else $prefix=NULL;
+  if ($line[0]===':') $prefix=substr(array_shift($parts),1); else $prefix=NULL;
   $cmd=array_shift($parts);
   return new irc_packet(array('prefix'=>$prefix,'cmd'=>$cmd,'args'=>$parts));
  }
