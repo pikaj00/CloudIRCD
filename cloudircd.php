@@ -346,13 +346,13 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   switch ($p->cmd) {
    case 'PRIVMSG':
     if (!isset($p->args[0])||!isset($p->args[1])) return FALSE;
-    $to=$this->ircchannel2channel($p->args[0]);
-    $p=$this->udpmsg4_client->send_message($this->unmap_nick($to),$p->args[1]);
+    $to=$this->ircchannel2channel($this->unmap_nick($p->args[0]));
+    $p=$this->udpmsg4_client->send_message($to,$p->args[1]);
     if ($p===FALSE)
      if ($this->is_channel($to))
-      return $this->write_client_irc_from_server('NOTICE',array('Failed to send message to '.$p->args[0]));
+      return $this->write_client_irc_from_server('NOTICE',array($this->nick(),'Failed to send message to '.$p->args[0]));
      else
-      return $this->write_client_irc_from_server('NOTICE',array('Failed to send PM to '.$p->args[0]));
+      return $this->write_client_irc_from_server('NOTICE',array($this->nick(),'Failed to send PM to '.$p->args[0]));
     return $this->write_hub($p->framed());
    case 'JOIN':
     foreach (explode(',',$p->args[0]) as $channel)
