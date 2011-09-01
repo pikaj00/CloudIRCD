@@ -1,2 +1,2 @@
 #!/bin/sh
-exec tcpserver -l "`cat env/hostname`" "`cat env/ip`" 6667 tcpclient "`cat env/hubip`" 15783 envdir env php cloudircd.php
+exec tcpserver -H -R -l "`cat env/hostname`" "`cat env/ip`" 6667 tcpclient "`cat env/hubip`" 15783 envdir env php cloudircd.php
