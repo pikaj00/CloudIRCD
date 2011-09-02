@@ -6,6 +6,7 @@ $config=array(
   'seckey'=>rtrim(file_get_contents('seckey')),
  ),
  'ircnet'=>getenv('ircnet'),
+ 'oldircnet'=>getenv('oldircnet'),
  'hostname'=>getenv('hostname'),
  'motd'=>rtrim(file_get_contents('motd.txt')),
 // 'nick_map_function'=>create_function('$nick','return str_rot13($nick);'),

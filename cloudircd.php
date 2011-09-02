@@ -134,6 +134,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  function irc_set_nick ($nick) {
   if (isset($this->config['user'])) $onick=$this->nick(); else $onick=$nick;
   $nick=preg_replace(',^/'.$this->config['ircnet'].'/,','',$nick);
+  if (isset($this->config['oldircnet']))
+   $nick=preg_replace(',^/'.$this->config['oldircnet'].'/,','',$nick);
   if (!preg_match('/^[A-Za-z0-9_.-]+$/',$nick)) return FALSE;
   $this->irc_send_nickchange('/'.$this->config['ircnet'].'/'.$nick,$onick);
   $this->udpmsg4_client->set_user($this->config['user']=$nick);
@@ -150,7 +152,9 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    if (($p=self::irc_parse($this->client_buffer,$this->client[0],1))===FALSE) return FALSE;
    if ($p===NULL) die("This should not happen.");
    if ($p->cmd==='USER') continue;
-   if ($p->cmd==='NICK') if ($this->irc_set_nick($p->args[0])!==FALSE) $done=1;
+   if ($p->cmd==='NICK')
+    if ($this->irc_set_nick($p->args[0])!==FALSE) $done=1;
+    else $this->write_client_irc_from_server('432',array($p->args[0],'Erroneus nickname'));
    else $this->complain($p);
   }
   $this->irc_send_numerics();

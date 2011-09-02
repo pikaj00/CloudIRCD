@@ -5,16 +5,24 @@ echo "accept all of the defaults and test first before that you reconfigure" >&2
 echo "for production." >&2
 echo >&2
 
-echo -n 'IRCnet [test]: ' >&2; read ircnet;
-echo -n 'hostname [localhost]: ' >&2; read hostname;
-echo -n 'IP [127.0.0.1]: ' >&2; read ip;
-echo -n 'IP of your hub [1.0.27.111]: ' >&2; read hubip;
+oldircnet_default=test
+if [ -r env/ircnet ]; then
+ oldircnet_default="`cat env/ircnet`"
+fi
+true "${def_ircnet:=test}" "${def_oldircnet:=$oldircnet_default}" "${def_hostname:=localhost}" "${def_ip:=127.0.0.1}" "${def_hubip:=1.0.27.111}"
+
+echo -n "IRCnet [$def_ircnet]: " >&2; read ircnet;
+echo -n "Old IRCnet [$def_oldircnet]: " >&2; read oldircnet;
+echo -n "hostname [$def_hostname]: " >&2; read hostname;
+echo -n "IP [$def_ip]: " >&2; read ip;
+echo -n "IP of your hub [$def_hubip]: " >&2; read hubip;
 
 [ -d env ] || mkdir env
-echo -n "${ircnet:=test}" >env/ircnet
-echo -n "${hostname:=localhost}" >env/hostname
-echo -n "${ip:=127.0.0.1}" >env/ip
-echo -n "${hubip:=1.0.27.111}" >env/hubip
+echo -n "${ircnet:=$def_ircnet}" >env/ircnet
+echo -n "${oldircnet:=$def_oldircnet}" >env/oldircnet
+echo -n "${hostname:=$def_hostname}" >env/hostname
+echo -n "${ip:=$def_ip}" >env/ip
+echo -n "${hubip:=$def_hubip}" >env/hubip
 
 [ -e run ] || ln -s run.ircd run
 if [ "x$ircnet" = "xtest" ]; then
@@ -23,7 +31,7 @@ if [ "x$ircnet" = "xtest" ]; then
  [ -e seckey ] || echo '1019f04471cbfe3e8035ae3c8af09a22bd35f321f18adce700b30e1873a91e22' >seckey
  echo >&2
  echo "Now you can start the service with './run&' and then try to connect" >&2
- echo "to 127.0.0.1:6667 from your IRC client." >&2
+ echo "to $ip:6667 from your IRC client." >&2
  echo >&2
 else
  echo >&2
