@@ -1,0 +1,2 @@
+#!/bin/sh
+exec tcpclient -H -R -l localhost 1.0.27.111 15783 sh -c 'ircnet=test exec php huntbot.php'
