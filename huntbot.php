@@ -132,7 +132,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    case 'ENC': return TRUE;
    default:
 debug('udpmsg4',1,"received CMD=".$p['CMD']);
-    return FALSE;
+    return TRUE;
   }
  }
  function loop () {
