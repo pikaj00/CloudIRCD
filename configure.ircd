@@ -26,7 +26,7 @@ echo -n "${hubip:=$def_hubip}" >env/hubip
 
 [ -e run ] || ln -s run.ircd run
 if [ "x$ircnet" = "xtest" ]; then
- [ -e motd.txt ] || echo -en "Thank you for trying cloudircd.\nhttp://www.srw.ano/cloudircd\nPlease report bugs to /NNN/somerandomnick :-]\n" >motd.txt
+ [ -e motd.txt ] || echo -en "Thank you for trying cloudircd.\nhttp://www.srw.ano/cloudircd\nor from tor:\nhttp://mkdopl6dniqykj2y.onion/do_it.php/http/www.srw.ano/cloudircd\nPlease report bugs to /NNN/somerandomnick :-]\n" >motd.txt
  [ -e pubkey ] || echo '7938ecd1cd3ac04990bc250c2d7a2fe77f99f08c26da532de34548b5f3a82430' >pubkey
  [ -e seckey ] || echo '1019f04471cbfe3e8035ae3c8af09a22bd35f321f18adce700b30e1873a91e22' >seckey
  echo >&2

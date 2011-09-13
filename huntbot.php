@@ -114,17 +114,19 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
       } else if ($this->nick2shortnick($p['SRC'])==='sevilBot') {
        if (preg_match('/bagged a ([0-9.KkGg]+) (.*)\.$/',$p['MSG'],$m)) {
         if (($hungry=$this->find_next_hungry())===NULL)
-         return $this->send_message($p['DST'],'Nobody other is hungry so I can eat the '.$m[2].'.');
+         return $this->send_message($p['DST'],'Nobody else is hungry so I can eat the '.$m[2].'.');
         unset($this->config['hungry'][$hungry]);
         return $this->send_message($p['DST'],$hungry.': Now you can enjoy to eat your '.$m[1].' '.$m[2].'.');
        } else if (preg_match('/missed/',$p['MSG'])) {
         if (($hungry=$this->find_next_hungry())===NULL)
-         return $this->send_message($p['DST'],'It not matters.');
+         return $this->send_message($p['DST'],'It does not matter.');
         return $this->send_message($p['DST'],'srnbot: You suck.  Now I need to clean my gun for that '.$hungry.' will eat.') && $this->send_message($p['DST'],'!hunt');
-       } else if (preg_match('/hogging all/',$p['MSG'])) {
+       } else if (preg_match('/hogging all the best pitches (.*?), /',$p['MSG'],$m)) {
         if (($hungry=$this->find_next_hungry())===NULL)
-         return $this->send_message($p['DST'],'It not matters.');
-        return $this->send_message($p['DST'],'LOL, k, srnbot should rest.') && $this->send_message($p['DST'],$hungry.': No worry, I will try to hunt for you.') && $this->send_message($p['DST'],'!hunt');
+         return $this->send_message($p['DST'],'It does not matter.');
+        if ($m[1]===$this->nick())
+         return $this->send_message($p['DST'],'!hunt');
+        return $this->send_message($p['DST'],'LOL, k, '.$m[1].' should rest.') && $this->send_message($p['DST'],$hungry.': No worry, I will try to hunt for you.') && $this->send_message($p['DST'],'!hunt');
        } else return TRUE;
       }
     }
