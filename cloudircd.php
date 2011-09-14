@@ -30,6 +30,7 @@ class cloudircd {
  }
  function write_client ($data) {
   if (self::write_fd($this->client[1],$data)!=strlen($data)) return FALSE;
+debug('irc',1,"sent: $data");
   return TRUE;
  }
  static function construct ($hub_r,$hub_w,$client_r,$client_w,$config=NULL) {
