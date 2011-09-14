@@ -156,6 +156,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    if ($p->cmd==='NICK')
     if ($this->irc_set_nick($p->args[0])!==FALSE) $done=1;
     else $this->write_client_irc_from_server('432',array('/'.$this->config['ircnet'].'/randomnick',$p->args[0],'Erroneus nickname'));
+   else if ($p->cmd==='MODE')
+    $this->write_client_irc_from_server('451',array('MODE','You have not registered'));
    else $this->complain($p);
   }
   $this->irc_send_numerics();
