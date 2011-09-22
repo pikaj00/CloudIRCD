@@ -25,7 +25,7 @@ debug('irc',1,"line=$line");
   return new self(array('prefix'=>$prefix,'cmd'=>$cmd,'args'=>$args));
  }
  function __construct ($array) {
-  $this->prefix=str_replace(array(' ',"\n","\r"),'',$array['prefix']);
+  $this->prefix=strlen($array['prefix'])?str_replace(array(' ',"\n","\r"),'',$array['prefix']):$array['prefix'];
   $this->cmd=str_replace(array(' ',"\n","\r"),'',$array['cmd']);
   $this->args=is_array($array['args'])?$array['args']:array();
   foreach ($this->args as $k=>$arg)

@@ -2,7 +2,7 @@
 
 class array_object implements ArrayAccess {
  var $array;
- function __construct ($array) {
+ function __construct ($array=array()) {
   $this->array=$array;
  }
  function offsetExists ($offset) { return array_key_exists($offset,$this->array); }
