@@ -9,8 +9,8 @@ true "${def_ircnet:=test}" "${def_hostname:=localhost}" "${def_ircdip:=127.0.0.1
 
 echo -n "IRCnet [$def_ircnet]: " >&2; read ircnet;
 echo -n "hostname [$def_hostname]: " >&2; read hostname;
-echo -n "IP of your ircd [$def_ircdip]: " >&2; read ip;
-echo -n "port of your ircd [$def_ircdport]: " >&2; read ip;
+echo -n "IP of your ircd [$def_ircdip]: " >&2; read ircdip;
+echo -n "port of your ircd [$def_ircdport]: " >&2; read ircdport;
 echo -n "IP of your hub [$def_hubip]: " >&2; read hubip;
 
 [ -d env ] || mkdir env
