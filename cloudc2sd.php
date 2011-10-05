@@ -156,7 +156,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   if (preg_match('/^#/',$channel)) {
    $to=preg_replace('/^#/','chat/',$channel);
    foreach ($this->config['channels'] as $name => $channel)
-    if (strcasecmp($to,$name)) $to=$name;
+    if (!strcasecmp($to,$name)) $to=$name;
    return $to;
   }
   return '/'.$this->config['ircnet'].'/'.$channel;
