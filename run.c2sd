@@ -1,2 +1,2 @@
 #!/bin/sh
-exec tcpclient -H -R -l "`cat env/hostname`" "`cat env/ircdip" "`cat env/ircdport`" ./ucspi-client2server tcpclient -H -R -l "`cat env/hostname`" "`cat env/hubip`" 15783 envdir env php cloudc2sd.php
+exec tcpclient -H -R -l "`cat env/hostname`" "`cat env/ircdip`" "`cat env/ircdport`" ./ucspi-client2server tcpclient -H -R -l "`cat env/hostname`" "`cat env/hubip`" 15783 envdir env php cloudc2sd.php
