@@ -1,0 +1,39 @@
+#!/bin/sh -e
+
+echo "If you did not test your deployment then I recommend that you will" >&2
+echo "accept all of the defaults and test first before that you reconfigure" >&2
+echo "for production." >&2
+echo >&2
+
+true "${def_ircnet:=test}" "${def_hostname:=localhost}" "${def_ircdip:=127.0.0.1}" "${def_ircdport:=6667}" "${def_hubip:=1.0.27.111}"
+
+echo -n "IRCnet [$def_ircnet]: " >&2; read ircnet;
+echo -n "hostname [$def_hostname]: " >&2; read hostname;
+echo -n "IP of your ircd [$def_ircdip]: " >&2; read ip;
+echo -n "port of your ircd [$def_ircdport]: " >&2; read ip;
+echo -n "IP of your hub [$def_hubip]: " >&2; read hubip;
+
+[ -d env ] || mkdir env
+echo -n "${ircnet:=$def_ircnet}" >env/ircnet
+echo -n "${hostname:=$def_hostname}" >env/hostname
+echo -n "${ircdip:=$def_ircdip}" >env/ircdip
+echo -n "${ircdport:=$def_ircdport}" >env/ircdport
+echo -n "${hubip:=$def_hubip}" >env/hubip
+
+[ -e run ] || ln -s run.c2sd run
+if [ "x$ircnet" = "xtest" ]; then
+ [ -e pubkey ] || echo '7938ecd1cd3ac04990bc250c2d7a2fe77f99f08c26da532de34548b5f3a82430' >pubkey
+ [ -e seckey ] || echo '1019f04471cbfe3e8035ae3c8af09a22bd35f321f18adce700b30e1873a91e22' >seckey
+ echo >&2
+ echo "Now you can start the service with './run&' and then try to connect" >&2
+ echo "to $ircdip:$ircdport from your IRC client." >&2
+ echo >&2
+else
+ echo >&2
+ echo "Now you should create a keypair.  Save the pubkey in a pubkey file" >&2
+ echo "and save the seckey in a seckey file." >&2
+ echo >&2
+ echo "You may also want to set the map/unmap functions for nicks if your" >&2
+ echo "IRC client sucks." >&2
+ echo >&2
+fi
