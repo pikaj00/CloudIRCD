@@ -125,7 +125,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
         if (($hungry=$this->find_next_hungry())===NULL)
          return $this->send_message($p['DST'],'It does not matter.');
         if ($m[1]===$this->nick())
-         return $this->send_message($p['DST'],'!hunt');
+         return $this->send_message($p['DST'],'srnbot: I\'m hungry.');
         return $this->send_message($p['DST'],'LOL, k, '.$m[1].' should rest.') && $this->send_message($p['DST'],$hungry.': No worry, I will try to hunt for you.') && $this->send_message($p['DST'],'!hunt');
        } else return TRUE;
       }
