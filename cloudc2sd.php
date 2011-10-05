@@ -142,7 +142,9 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   return preg_replace('/!.*$/','',$nick);
  }
  function channel2ircchannel ($channel) {
-  if ($channel[0]==='/') return $channel;
+  if ($channel[0]==='/')
+   if (!$this->nick_is_ours($channel)) return $channel;
+   else return $this->nick2shortnick($channel);
   if (!preg_match(',^chat/,',$channel)) return FALSE;
   return preg_replace(',^chat/,','#',$channel);
  }
@@ -179,6 +181,9 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $net=preg_replace(',^/,','',$nick);
   $net=preg_replace(',/.*$,','',$net);
   return $net;
+ }
+ function nick_is_ours ($nick) {
+  return $this->nick2net($nick)===$this->config['ircnet'];
  }
  function irc_do ($p) {
   if (($p===FALSE)||($p===NULL)) return $p;
