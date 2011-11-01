@@ -200,6 +200,11 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $fullnick=$nick.'!'.$user['user'].'@'.$user['host'];
   return $this->write_client_irc($this->fullnick($nick),'QUIT',array($reason));
  }
+ function write_client_irc_topic ($nick,$channel,$topic) {
+  $user=$this->get_user($nick);
+  $fullnick=$nick.'!'.$user['user'].'@'.$user['host'];
+  return $this->write_client_irc($this->fullnick($nick),'TOPIC',array($this->channel2ircchannel($channel),$topic));
+ }
  function irc_send_numerics () {
   $this->write_client_numeric('001','Welcome to the Internet Relay Network');
   $this->write_client_numeric('002','Your host is '.$this->hostname.', running version cloudircd');
@@ -261,6 +266,24 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   if (!isset($this->config['channels'][$channel])) return array();
   if (!isset($this->config['channels'][$channel]['users'])) return array();
   return $this->config['channels'][$channel]['users'];
+ }
+ function channel_topic ($channel) {
+  if (!isset($this->config['channels'])) return NULL;
+  if (!isset($this->config['channels'][$channel])) return NULL;
+  if (!isset($this->config['channels'][$channel]['topic'])) return NULL;
+  return $this->config['channels'][$channel]['topic'];
+ }
+ function channel_topic_from ($channel) {
+  if (!isset($this->config['channels'])) return NULL;
+  if (!isset($this->config['channels'][$channel])) return NULL;
+  if (!isset($this->config['channels'][$channel]['topic'])) return NULL;
+  return $this->config['channels'][$channel]['topic_from'];
+ }
+ function channel_topic_timestamp ($channel) {
+  if (!isset($this->config['channels'])) return NULL;
+  if (!isset($this->config['channels'][$channel])) return NULL;
+  if (!isset($this->config['channels'][$channel]['topic'])) return NULL;
+  return $this->config['channels'][$channel]['topic_timestamp'];
  }
  function user_exists ($nick) {
   if (!isset($this->config['users'])) return FALSE;
@@ -346,6 +369,21 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $this->write_client_irc_part($this->map_nick($this->nick()),$channel,$reason);
   return TRUE;
  }
+ function set_channel_topic ($channel,$topic,$from=NULL,$timestamp=NULL) {
+  $this->config['channels'][$channel]['topic']=$topic;
+  $this->config['channels'][$channel]['topic_from']=isset($from)?$from:$this->nick();
+  $this->config['channels'][$channel]['topic_timestamp']=isset($timestamp)?$timestamp:time();
+  $icare=0;
+  if ($this->am_joined($channel)) $icare=1;
+  if ($this->is_channel($channel) && !$this->user_is_joined($from,$channel)) {
+   $this->join_user_to_channel($from,$channel);
+   if ($icare) $this->write_client_irc_join($from,$channel);
+  }
+  if ($from===$this->nick()) $icare=1;
+  if ($icare)
+   $this->write_client_irc_topic($this->map_nick($this->nick()),$channel,$topic);
+  return TRUE;
+ }
  function irc_do ($p) {
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!is_a($p,'irc_packet')) $p=irc_packet::parse($p);
@@ -415,6 +453,17 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     $user=$this->get_user($this->unmap_nick($p->args[0]));
     $this->write_client_numeric('302',$this->map_nick($user['nick'])."=+".$user['user'].'@'.$user['host']);
     return TRUE;
+   case 'TOPIC':
+    if (!isset($p->args[0])) return FALSE;
+    $channel=$this->ircchannel2channel($p->args[0]);
+    if (!isset($p->args[1])) {
+     $topic=$this->channel_topic($channel);
+     if ($topic===NULL)
+      return $this->write_client_numeric('331',array($p->args[0],'No topic is set.'));
+     return $this->write_client_numeric('332',array($p->args[0],$topic)) && $this->write_client_numeric('333',array($p->args[0],$this->channel_topic_from($channel),$this->channel_topic_timestamp($channel)));
+    }
+    $this->set_channel_topic($channel,$p->args[1]);
+    return TRUE;
    default:
 debug('irc',1,'received: '.$p);
     return FALSE;
@@ -479,6 +528,9 @@ debug('irc',1,'received: '.$p);
     }
     return TRUE;
    case 'ENC': return TRUE;
+   case 'TOPIC':
+    $this->set_channel_topic($p['DST'],$p['TOPIC'],$p['SRC']);
+    return TRUE;
    default:
 debug('udpmsg4',1,"received CMD=".$p['CMD']);
     return FALSE;
