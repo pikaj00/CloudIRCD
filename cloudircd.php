@@ -374,15 +374,6 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $from=isset($from)?$from:$this->nick();
   $this->config['channels'][$channel]['topic_from']=isset($from)?$from:$this->nick();
   $this->config['channels'][$channel]['topic_timestamp']=isset($timestamp)?$timestamp:time();
-  $icare=0;
-  if ($this->am_joined($channel)) $icare=1;
-  if ($this->is_channel($channel) && !$this->user_is_joined($from,$channel)) {
-   $this->join_user_to_channel($from,$channel);
-   if ($icare) $this->write_client_irc_join($from,$channel);
-  }
-  if ($from===$this->nick()) $icare=1;
-  if ($icare)
-   $this->write_client_irc_topic($this->map_nick($this->nick()),$channel,$topic);
   return TRUE;
  }
  function irc_do ($p) {
@@ -464,7 +455,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      return $this->write_client_numeric('332',array($p->args[0],$topic)) && $this->write_client_numeric('333',array($p->args[0],$this->channel_topic_from($channel),$this->channel_topic_timestamp($channel)));
     }
     $this->set_channel_topic($channel,$p->args[1]);
-    return TRUE;
+    $tp=$this->udpmsg4_client->send_topic($channel,$topic,$p->args[1]);
+    return $this->write_hub($tp->framed()) && $this->write_client_irc_topic($this->map_nick($this->nick()),$channel,$topic);
    default:
 debug('irc',1,'received: '.$p);
     return FALSE;
@@ -531,6 +523,15 @@ debug('irc',1,'received: '.$p);
    case 'ENC': return TRUE;
    case 'TOPIC':
     $this->set_channel_topic($p['DST'],$p['TOPIC'],$p['SRC']);
+    $icare=0;
+    if ($this->am_joined($p['DST'])) $icare=1;
+    if ($this->is_channel($p['DST']) && !$this->user_is_joined($p['SRC'],$p['DST'])) {
+     $this->join_user_to_channel($p['SRC'],$p['DST']);
+     if ($icare) $this->write_client_irc_join($p['SRC'],$p['DST']);
+    }
+    if ($p['SRC']===$this->nick()) $icare=1;
+    if ($icare)
+     $this->write_client_irc_topic($p['SRC'],$p['DST'],$p['TOPIC']);
     return TRUE;
    default:
 debug('udpmsg4',1,"received CMD=".$p['CMD']);
