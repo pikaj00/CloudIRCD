@@ -455,8 +455,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      return $this->write_client_numeric('332',array($p->args[0],$topic)) && $this->write_client_numeric('333',array($p->args[0],$this->channel_topic_from($channel),$this->channel_topic_timestamp($channel)));
     }
     $this->set_channel_topic($channel,$p->args[1]);
-    $tp=$this->udpmsg4_client->send_topic($channel,$topic,$p->args[1]);
-    return $this->write_hub($tp->framed()) && $this->write_client_irc_topic($this->map_nick($this->nick()),$channel,$topic);
+    $tp=$this->udpmsg4_client->send_topic($channel,$p->args[1]);
+    return $this->write_hub($tp->framed()) && $this->write_client_irc_topic($this->map_nick($this->nick()),$channel,$p->args[1]);
    default:
 debug('irc',1,'received: '.$p);
     return FALSE;
