@@ -124,7 +124,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     foreach ($this->config['channels'] as $name=>$channel)
      $this->irc_join($name);
     $done=1;
-   }
+   } else if ($p->cmd==='PING')
+    if ($this->write_client_irc_from_client('PONG',array($p->args[0]))===FALSE) return FALSE;
   }
   return TRUE;
  }
