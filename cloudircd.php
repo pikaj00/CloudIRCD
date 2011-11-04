@@ -372,7 +372,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  function set_channel_topic ($channel,$topic,$from=NULL,$timestamp=NULL) {
   $this->config['channels'][$channel]['topic']=$topic;
   $from=isset($from)?$from:$this->nick();
-  $this->config['channels'][$channel]['topic_from']=isset($from)?$from:$this->nick();
+  $this->config['channels'][$channel]['topic_from']=$from;
   $this->config['channels'][$channel]['topic_timestamp']=isset($timestamp)?$timestamp:time();
   return TRUE;
  }
