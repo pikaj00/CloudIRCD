@@ -199,9 +199,9 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     if ($to[0]==='/') {
 //     return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"PMs not supported still"));
      $parts = explode(': ',$p->args[1],2);
-     if (!isset($parts[1]) || preg_match('/\s/',$parts[0]))
+     if (!isset($parts[1]) || !preg_match('#^[ @.]*(.*)$#',$parts[0],$m) || preg_match('/\s/',$parts[0]))
       return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"You can chat to cloud users through me.  The format is '/path/to/destination: message' :-)"));
-     $p=$this->udpmsg4_client->send_message($this->unmap_nick($parts[0]),$parts[1],$this->unmap_nick($from));
+     $p=$this->udpmsg4_client->send_message($this->unmap_nick($m[1]),$parts[1],$this->unmap_nick($from));
      if (!$this->write_hub($p->framed()))
       return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"Your PM to $parts[0] failed.  Usually this is because that you typed the destination wrong or because that the destination not supports end-to-end encrypted PMs."));
      return TRUE;
