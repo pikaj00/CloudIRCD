@@ -35,6 +35,7 @@ class poll implements Iterator {
   foreach ($readfds as $readfd) $this->returns[]=array('r',$readfd);
   foreach ($writefds as $writefd) $this->returns[]=array('w',$writefd);
   if (count($this->returns)) return $this->current=array_shift($this->returns);
+  return FALSE;
  }
  function find_next_alarm () {
   $next=NULL;
