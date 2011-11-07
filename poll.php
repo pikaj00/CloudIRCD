@@ -32,6 +32,7 @@ class poll implements Iterator {
   }
   $num=stream_select($readfds,$writefds,$null,$timediff_sec,$timediff_usec);
   if ($num===FALSE) return FALSE;
+  if ($num===0) return TRUE;
   foreach ($readfds as $readfd) $this->returns[]=array('r',$readfd);
   foreach ($writefds as $writefd) $this->returns[]=array('w',$writefd);
   if (count($this->returns)) return $this->current=array_shift($this->returns);
