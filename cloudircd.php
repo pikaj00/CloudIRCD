@@ -141,6 +141,10 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $this->irc_send_nickchange('/'.$this->config['ircnet'].'/'.$nick,$onick);
   $this->udpmsg4_client->set_user($this->config['user']=$nick);
  }
+ function irc_set_ircnick ($nick) {
+  $nick=$this->ircwire2chan($nick);
+  $this->irc_set_nick($nick);
+ }
  function irc_send_nickchange ($nick,$onick=NULL) {
   if (!isset($onick))
    if (isset($this->config['user']))
@@ -154,8 +158,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    if ($p===NULL) die("This should not happen.");
    if ($p->cmd==='USER') continue;
    if ($p->cmd==='NICK')
-    if ($this->irc_set_nick($p->args[0])!==FALSE) $done=1;
-    else $this->write_client_irc_from_server('432',array('/'.$this->config['ircnet'].'/randomnick',$p->args[0],'Erroneus nickname'));
+    if ($this->irc_set_ircnick($p->args[0])!==FALSE) $done=1;
+    else $this->write_client_irc_from_server('432',array($this->chan2ircwire('/'.$this->config['ircnet'].'/randomnick'),$p->args[0],'Erroneus nickname'));
    else if ($p->cmd==='MODE')
     $this->write_client_irc_from_server('451',array('MODE','You have not registered'));
    else $this->complain($p);
@@ -413,7 +417,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    case 'QUIT':
     exit(0);
    case 'NICK':
-    return $this->irc_set_nick($p->args[0]);
+    return $this->irc_set_ircnick($p->args[0]);
    case 'PING':
     return $this->write_client_irc_from_server('PONG',array($this->hostname,@$p->args[0]));
    case 'MODE':
