@@ -132,23 +132,25 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  function nick () {
   return '/'.$this->config['ircnet'].'/'.$this->config['user'];
  }
- function irc_set_nick ($nick) {
-  if (isset($this->config['user'])) $onick=$this->nick(); else $onick=$nick;
+ function irc_set_nick ($nick,$ircnick=FALSE) {
+  if (isset($this->config['user'])) $onick=$This->chan2ircwire($this->nick());
+  else $onick=$nick;
+  if ($ircnick) $nick=$this->ircwire2chan($nick);
   $nick=preg_replace(',^/'.$this->config['ircnet'].'/,','',$nick);
   if (isset($this->config['oldircnet']))
    $nick=preg_replace(',^/'.$this->config['oldircnet'].'/,','',$nick);
   if (!preg_match('/^[A-Za-z0-9_.-]+$/',$nick)) return FALSE;
-  $this->irc_send_nickchange('/'.$this->config['ircnet'].'/'.$nick,$onick);
+  $this->irc_send_nickchange($this->chan2ircwire('/'.$this->config['ircnet'].'/'.$nick),$onick);
   $this->udpmsg4_client->set_user($this->config['user']=$nick);
+  return TRUE;
  }
  function irc_set_ircnick ($nick) {
-  $nick=$this->ircwire2chan($nick);
-  $this->irc_set_nick($nick);
+  return $this->irc_set_nick($nick,TRUE);
  }
  function irc_send_nickchange ($nick,$onick=NULL) {
   if (!isset($onick))
    if (isset($this->config['user']))
-    $onick='/'.$this->config['ircnet'].'/'.$this->config['user'];
+    $onick=$this->chan2ircwire('/'.$this->config['ircnet'].'/'.$this->config['user']);
   if (isset($onick) && ($onick!==$nick))
    $this->write_client(":$onick NICK $nick\n");
  }
@@ -175,7 +177,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  }
  function write_client_numeric ($cmd,$args) {
   $fargs=(array)$args;
-  array_unshift($fargs,$this->nick());
+  array_unshift($fargs,$this->chan2ircwire($this->nick()));
   return $this->write_client_irc_from_server($cmd,$fargs);
  }
  function write_client_numeric_notenoughparams ($command) {
@@ -246,12 +248,12 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  function map_nick ($nick) {
   if ($this->map_function===NULL) return $nick;
   $f=$this->map_function;
-  return $f($nick);
+  return $f($nick,$this);
  }
  function unmap_nick ($nick) {
   if ($this->unmap_function===NULL) return $nick;
   $f=$this->unmap_function;
-  return $f($nick);
+  return $f($nick,$this);
  }
  function ircwire2chan ($ircwire) {
   $chan=$this->unmap_nick($ircwire);
@@ -369,8 +371,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   if (!isset($this->config['channels'][$channel]['users'][$this->nick()]))
    $this->config['channels'][$channel]['users'][$this->nick()]=$this->get_user($this->nick());
   $this->write_client_irc_join($this->chan2ircwire($this->nick()),$channel);
-  $nicks=join(' ',array_keys($this->config['channels'][$channel]['users']));
-  $this->write_client_numeric('353',array('=',$ircchannel,$this->map_nicks($nicks)));
+  $nicks=array_keys($this->config['channels'][$channel]['users']);
+  $this->write_client_numeric('353',array('=',$ircchannel,join(' ',$this->map_nicks($nicks))));
   $this->write_client_numeric('366',array($ircchannel,'End of /NAMES list.'));
   return TRUE;
  }
