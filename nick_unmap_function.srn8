@@ -1,0 +1,6 @@
+if ($nick[0]==="#") return FALSE;
+$nick=explode("/",$nick);
+if (count($nick)===1) return "/".$ircd->config["ircnet"]."/".$nick[0];
+array_unshift($nick,array_pop($nick));
+array_unshift($nick,"");
+return implode("/",$nick);

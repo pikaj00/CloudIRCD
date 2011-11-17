@@ -9,8 +9,8 @@ $config=array(
  'oldircnet'=>getenv('oldircnet'),
  'hostname'=>getenv('hostname'),
  'motd'=>rtrim(file_get_contents('motd.txt')),
-// 'nick_map_function'=>create_function('$nick,$ircd','$nick=explode("/",$nick); array_shift($nick); array_push($nick,array_shift($nick)); return implode("/",$nick);'),
-// 'nick_unmap_function'=>create_function('$nick,$ircd','if ($nick[0]==="#") return FALSE; $nick=explode("/",$nick); if (count($nick)===1) return "/".$ircd->config["ircnet"]."/".$nick[0]; array_unshift($nick,array_pop($nick)); array_unshift($nick,""); return implode("/",$nick);'),
 );
+
+foreach (array('nick_map_function'=>'$nick,$ircd','nick_unmap_function'=>'$nick,$ircd') as $key => $sig) if (file_exists($key)) $config[$key]=create_function($sig,file_get_contents($key));
 
 ?>

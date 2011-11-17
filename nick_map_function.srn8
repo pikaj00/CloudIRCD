@@ -1,0 +1,4 @@
+$nick=explode("/",$nick);
+array_shift($nick);
+array_push($nick,array_shift($nick));
+return implode("/",$nick);
