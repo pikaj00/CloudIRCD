@@ -133,7 +133,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   return '/'.$this->config['ircnet'].'/'.$this->config['user'];
  }
  function irc_set_nick ($nick,$ircnick=FALSE) {
-  if (isset($this->config['user'])) $onick=$This->chan2ircwire($this->nick());
+  if (isset($this->config['user'])) $onick=$this->chan2ircwire($this->nick());
   else $onick=$nick;
   if ($ircnick) $nick=$this->ircwire2chan($nick);
   $nick=preg_replace(',^/'.$this->config['ircnet'].'/,','',$nick);
