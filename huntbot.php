@@ -117,7 +117,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
          return $this->send_message($p['DST'],'Nobody else is hungry so I can eat the '.$m[2].'.');
         unset($this->config['hungry'][$hungry]);
         return $this->send_message($p['DST'],$hungry.': Now you can enjoy to eat your '.$m[1].' '.$m[2].'.');
-       } else if (preg_match('/missed/',$p['MSG'])) {
+       } else if (preg_match('/ missed /',$p['MSG'])) {
         if (($hungry=$this->find_next_hungry())===NULL)
          return $this->send_message($p['DST'],'It does not matter.');
         return $this->send_message($p['DST'],'srnbot: You suck.  Now I need to clean my gun for that '.$hungry.' will eat.') && $this->send_message($p['DST'],'!hunt');
