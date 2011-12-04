@@ -190,7 +190,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  function write_client_irc_join ($nick,$channel) {
   $ircchannel=$this->channel2ircchannel($channel);
   $user=$this->get_user($nick);
-  $shortnick=preg_replace(',^/.*/,','',$nick);
+  $shortnick=$this->nick2shortnick($nick);
   $fullnick=$nick.'!'.$user['user'].'@'.$user['host'];
   return $this->write_client_irc($this->fullnick($nick),'JOIN',array($ircchannel));
  }
@@ -370,7 +370,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    $this->config['channels'][$channel]['users']=array();
   if (!isset($this->config['channels'][$channel]['users'][$this->nick()]))
    $this->config['channels'][$channel]['users'][$this->nick()]=$this->get_user($this->nick());
-  $this->write_client_irc_join($this->chan2ircwire($this->nick()),$channel);
+  $this->write_client_irc_join($this->nick(),$channel);
   $nicks=array_keys($this->config['channels'][$channel]['users']);
   $this->write_client_numeric('353',array('=',$ircchannel,join(' ',$this->map_nicks($nicks))));
   $this->write_client_numeric('366',array($ircchannel,'End of /NAMES list.'));
