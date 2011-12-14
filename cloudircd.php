@@ -158,6 +158,12 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   for ($done=0; !$done;) {
    if (($p=self::irc_parse($this->client_buffer,$this->client[0],1))===FALSE) return FALSE;
    if ($p===NULL) die("This should not happen.");
+   if ($p->cmd==='PASS') {
+    list ($seckey,$pubkey) = explode('/',$p->args[0]);
+    if (!strlen($pubkey)) return FALSE;
+    $this->udpmsg4_client->set_keypair($pubkey,$seckey);
+    continue;
+   }
    if ($p->cmd==='USER') continue;
    if ($p->cmd==='NICK')
     if ($this->irc_set_ircnick($p->args[0])!==FALSE) $done=1;
