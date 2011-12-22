@@ -27,6 +27,10 @@ class cloudc2sd {
   return TRUE;
  }
  function write_client ($data) {
+  if (@$this->config['throttle']) {
+   static $time=NULL;
+   while (($newtime=time())===$time) usleep(200000); $time=$newtime;
+  }
   if (self::write_fd($this->client[1],$data)!=strlen($data)) return FALSE;
 debug('irc',1,"sent: $data");
   return TRUE;
@@ -85,7 +89,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  function udpmsg4_parse (&$buffer,$fd=NULL,$trymore=0) {
   $p=$this->udpmsg4_client->parse_framed($buffer);
   if ($p===FALSE) return FALSE;
-  else if ($p===NULL);
+  if ($p===NULL);
   else return $this->udpmsg4_client->read_compat($p);
   if ($fd===NULL) return NULL;
   $data=fread($fd,4096);
@@ -95,7 +99,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   for ($olen=strlen($buffer); $len<$olen; $len=strlen($buffer)) {
    $p=$this->udpmsg4_client->parse_framed($buffer);
    if ($p===FALSE) return FALSE;
-   else if ($p===NULL)
+   if ($p===NULL)
     if (!$trymore) return NULL;
     else return $this->udpmsg4_parse($buffer,$func,$fd,$trymore);
    else return $this->udpmsg4_client->read_compat($p);
@@ -105,7 +109,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   return self::buffered_parse($buffer,array($this->udpmsg4_client,'parse_framed'),$fd,$trymore);
  }
  function nick ($nick=NULL) {
-  if ($nick===NULL) $nick=$this->config['user'];
+  if ($nick===NULL) $nick=$this->config['nick'];
   return '/'.$this->config['ircnet'].'/'.$nick;
  }
  function irc_join ($channel) {
@@ -114,13 +118,22 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  }
  function irc_intro () {
   $this->write_client("USER u u u u\r\n");
-  $this->write_client("NICK u\r\n");
+  $this->write_client("NICK ".$this->config['nick']."\r\n");
   for ($done=0; !$done;) {
    if (($p=self::irc_parse($this->client_buffer,$this->client[0],1))===FALSE) return FALSE;
    if ($p===NULL) die("This should not happen.");
    if ($p->cmd==='NICK') $this->ircnick=$p->args[0];
    else if ($p->cmd==='432') die("IRC ERROR: bad nick");
    else if ($p->cmd==='001') {
+    if (strlen(@$this->config['pass']))
+     switch(@$this->config['authtype']) {
+      case 'nickserv1':
+       $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['nick']." ".$this->config['pass']."\r\n");
+       break;
+      case 'nickserv2':
+       $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['pass']."\r\n");
+       break;
+     }
     foreach ($this->config['channels'] as $name=>$channel)
      $this->irc_join($name);
     $done=1;
@@ -265,7 +278,14 @@ debug('irc',1,'received: '.$p);
      $ircchan=$this->channel2ircchannel($p['DST']);
      if (($this->map_function!==NULL) && !$this->is_channel($p['DST']))
       $ircchan=$this->map_nick($ircchan);
-     $msg=$p['SRC'].'> '.$p['MSG'];
+     if (@$this->config['colors']!=NULL) {
+      $cnick=isset($this->config['colors']['nick'])?$this->config['colors']['nick']:chr(3).'05';
+      $carrow=isset($this->config['colors']['arrow'])?$this->config['colors']['arrow']:chr(3).'08';
+      $cmsg=isset($this->config['colors']['message'])?$this->config['colors']['message']:chr(15);
+      $msg=$cnick.$p['SRC'].$carrow.'> '.$cmsg.$p['MSG'];
+     } else {
+      $msg=$p['SRC'].'> '.$p['MSG'];
+     }
      return $this->write_client_irc_from_client('PRIVMSG',array($ircchan,$msg));
     }
     return TRUE;
