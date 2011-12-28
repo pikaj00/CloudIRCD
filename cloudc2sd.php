@@ -235,6 +235,14 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      if (!$this->write_hub($p->framed())) return FALSE;
     }
     return TRUE;
+   case 'KICK':
+    $kicker=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
+    $kicked=$this->ircchannel2channel($this->fullnick2nick($p->args[1]));
+    foreach (explode(',',$p->args[0]) as $channel) {
+     $p=$this->udpmsg4_client->send_part($this->ircchannel2channel($channel),'kicked by '.$this->unmap_nick($kicker).': '.@$p->args[2],$this->unmap_nick($kicked));
+     if (!$this->write_hub($p->framed())) return FALSE;
+    }
+    return TRUE;
    case 'QUIT':
     $from=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
     $p=$this->udpmsg4_client->send_quit(@$p->args[0],$this->unmap_nick($from));
