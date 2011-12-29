@@ -259,6 +259,10 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     $from=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
     $p=$this->udpmsg4_client->send_quit(@$p->args[0],$this->unmap_nick($from));
     return $this->write_hub($p->framed());
+   case 'ERROR':
+    $p=$this->udpmsg4_client->send_quit('ERROR '.@$p->args[0],$this->nick());
+    $this->write_hub($p->framed());
+    exit(1);
 /*
    case 'NICK':
     $from=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
