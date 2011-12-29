@@ -503,6 +503,7 @@ debug('irc',1,'received: '.$p);
      $this->join_user_to_channel($p['SRC'],$p['DST']);
     $icare=0;
     if ($this->am_joined($p['DST'])) $icare=1;
+    if ($this->nick()===$p['SRC']) $icare=0;
     if ($icare) $this->write_client_irc_join($p['SRC'],$p['DST']);
     return TRUE;
    case 'PART':
