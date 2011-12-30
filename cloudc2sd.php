@@ -62,6 +62,7 @@ debug('irc',1,"sent: $data");
   $new->poll->add_readfd($hub_r);
   $new->poll->add_readfd($client_r);
 //  if (!isset($new->config['channels'])) $new->config['channels']=array();
+  if (!isset($new->config['kickers'])) $new->config['kickers']=array();
   return $new;
  }
  static function irc_parse (&$buffer,$fd=NULL,$trymore=0) {
@@ -219,19 +220,26 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
       return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"Your PM to $parts[0] failed.  Usually this is because that you typed the destination wrong or because that the destination not supports end-to-end encrypted PMs."));
      return TRUE;
     }
-    $p=$this->udpmsg4_client->send_message($this->unmap_nick($to),$p->args[1],$this->unmap_nick($from));
-    $r=$this->write_hub($p->framed());
+    $p2=$this->udpmsg4_client->send_message($this->unmap_nick($to),$p->args[1],$this->unmap_nick($from));
+    $r=$this->write_hub($p2->framed());
     if (!$r) return $r;
     if (preg_match('/^!kick (.*)/',$p->args[1],$m)) {
-     if (in_array($p->prefix,$this->config['kickers'][$this->unmap_nick($to)])) {
+     if (isset($this->config['kickers'][$this->unmap_nick($to)]) && in_array($fromnick,$this->config['kickers'][$this->unmap_nick($to)])) {
       $this->config['kicked'][$this->unmap_nick($to)][$this->unmap_nick($m[1])]=array('time'=>time(),'kicker'=>$p->prefix);
-      return $this->write_client_irc_from_client('PRIVMSG',array($to),"kicked");
+      return $this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"kicked"));
      } else {
-      return $this->write_client_irc_from_client('PRIVMSG',array($to),"not a kicker");
+      return $this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"not a kicker"));
      }
-    } else if (preg_match('/^!kicks$/',$p->args[1])) {
-     foreach ($this->config['kicked'][$this->unmap_nick($to)] as $nick=>$infos)
-      if (!$this->write_client_irc_from_client('PRIVMSG',array($to),"$nick $infos[kicker] $infos[time]")) return FALSE;
+    } else if (preg_match('/^!kicks( -a)?$/',$p->args[1],$m)) {
+     if (strlen(@$m[1]))
+      foreach ($this->config['kicked'] as $chan=>$kicks) {
+       if (!$this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"kicks in $chan"))) return FALSE;
+       foreach ($kicks as $nick=>$infos)
+        if (!$this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"$nick $infos[kicker] $infos[time]"))) return FALSE;
+      }
+     else
+      foreach ($this->config['kicked'][$this->unmap_nick($to)] as $nick=>$infos)
+       if (!$this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"$nick $infos[kicker] $infos[time]"))) return FALSE;
      return TRUE;
     }
     return $r;
@@ -239,8 +247,6 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     $from=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
     foreach (explode(',',$p->args[0]) as $channel) {
      $p=$this->udpmsg4_client->send_join($this->ircchannel2channel($channel),$this->unmap_nick($from));
-     if (isset($this->config['kicked'][$this->unmap_nick($channel)][$this->unmap_nick($from)]))
-      unset($this->config['kicked'][$this->unmap_nick($channel)][$this->unmap_nick($from)]);
      if (!$this->write_hub($p->framed())) return FALSE;
     }
     return TRUE;
@@ -293,7 +299,12 @@ debug('irc',1,'received: '.$p);
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!isset($p['CMD'])) return TRUE;
   switch($p['CMD']) {
-   case 'ALIVE': case 'JOIN':
+   case 'JOIN':
+    if (isset($this->config['kicked'][$p['DST']][$p['SRC']])) {
+     unset($this->config['kicked'][$p['DST']][$p['SRC']]);
+     return $this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($p['DST']),'unkicked '.$p['SRC']));
+    }
+   case 'ALIVE':
    case 'PART':
    case 'QUIT':
     return TRUE;
