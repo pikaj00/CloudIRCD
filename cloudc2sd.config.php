@@ -8,6 +8,13 @@ $config=array(
  'ircnet'=>getenv('ircnet'),
  'hostname'=>getenv('hostname'),
  'nick'=>'u',
+// 'pass'=>'strongpassword',
+ 'authtype'=>'nickserv2',
+ 'throttle'=>TRUE,
+ 'colors'=>TRUE,
+// 'kickers'=>array(
+//  'chat/anonet'=>array('Anobot','nick'),
+// ),
  'channels'=>array(
   'chat/anonet'=>TRUE,
   'chat/talk'=>TRUE,
