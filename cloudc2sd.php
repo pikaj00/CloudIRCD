@@ -229,6 +229,10 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      } else {
       return $this->write_client_irc_from_client('PRIVMSG',array($to),"not a kicker");
      }
+    } else if (preg_match('/^!kicks$/',$p->args[1])) {
+     foreach ($this->config['kicked'][$this->unmap_nick($to)] as $nick=>$infos)
+      if (!$this->write_client_irc_from_client('PRIVMSG',array($to),"$nick $infos[kicker] $infos[time]")) return FALSE;
+     return TRUE;
     }
     return $r;
    case 'JOIN':
