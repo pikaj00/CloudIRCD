@@ -340,7 +340,7 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
   }
  }
  function loop () {
-  $this->poll->add_timer(time()+60,'pingtimer');
+  $this->poll->add_alarm(time()+60,'pingtimer');
   foreach ($this->poll as $key => $value) switch ($key) {
    case 'r':
     if ($value===$this->client[0]) {
@@ -358,7 +358,7 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
    case 'w': break;
    default:
     $time=time();
-    $this->poll->add_timer($time+10,'pingtimer');
+    $this->poll->add_alarm($time+10,'pingtimer');
     if ($this->last_ping>$this->last_pong+30)
      foreach ($this->config['channels'] as $name=>$channel)
       $this->write_hub($this->udpmsg4_client->send_message($name,'BIG LAG',$this->nick()));
