@@ -17,6 +17,8 @@ class cloudc2sd {
  var $hostname;
  var $map_function=NULL;
  var $unmap_function=NULL;
+ var $last_ping=NULL;
+ var $last_pong=NULL;
  static function write_fd ($fd,$data,$tlen=0) {
   if (($len=fwrite($fd,$data))<=0) return $tlen;
   if ($len===strlen($data)) return $tlen+$len;
@@ -282,6 +284,9 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
 */
    case 'PING':
     return $this->write_client_irc_from_client('PONG',array($p->args[0]));
+   case 'PONG':
+    $this->last_pong=time();
+    return TRUE;
    default:
 debug('irc',1,'received: '.$p);
     return FALSE;
@@ -335,6 +340,7 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
   }
  }
  function loop () {
+  $this->poll->add_timer(time()+60,'pingtimer');
   foreach ($this->poll as $key => $value) switch ($key) {
    case 'r':
     if ($value===$this->client[0]) {
@@ -350,7 +356,18 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
     }
     break;
    case 'w': break;
-//   default: do timer;
+   default:
+    $time=time();
+    $this->poll->add_timer($time+10,'pingtimer');
+    if ($this->last_ping>$this->last_pong+30)
+     foreach ($this->config['channels'] as $name=>$channel)
+      $this->write_hub($this->udpmsg4_client->send_message($name,'BIG LAG',$this->nick()));
+    if ($this->last_ping>$this->last_pong+60) die("server died");
+    if ($this->last_ping+60<$time) {
+     $this->last_ping=$time;
+     return $this->write_client_irc_from_client('PING',array('YouThere?'));
+    }
+    break;
   }
 echo "reached to end\n";
   return NULL;
