@@ -369,7 +369,7 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
     }
     if ($this->last_ping+60<$time) {
      $this->last_ping=$time;
-     return $this->write_client_irc_from_client('PING',array('YouThere?'));
+     $this->write_client_irc_from_client('PING',array('YouThere?'));
     }
     break;
   }
