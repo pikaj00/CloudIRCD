@@ -363,7 +363,10 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
     if ($this->last_ping>$this->last_pong+30)
      foreach ($this->config['channels'] as $name=>$channel)
       $this->write_hub($this->udpmsg4_client->send_message($name,'BIG LAG',$this->nick()));
-    if ($this->last_ping>$this->last_pong+60) die("server died");
+    if ($this->last_ping>$this->last_pong+60) {
+     $this->write_hub($this->udpmsg4_client->send_quit('too much lag ('.$this->last_ping.','.$this->last_pong.')',$this->nick()));
+     die("server died");
+    }
     if ($this->last_ping+60<$time) {
      $this->last_ping=$time;
      return $this->write_client_irc_from_client('PING',array('YouThere?'));
