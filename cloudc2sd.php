@@ -341,6 +341,7 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
  }
  function loop () {
   $this->poll->add_alarm(time()+60,'pingtimer');
+  $this->last_ping=$this->last_pong=time();
   foreach ($this->poll as $key => $value) switch ($key) {
    case 'r':
     if ($value===$this->client[0]) {
