@@ -540,6 +540,15 @@ debug('irc',1,'received: '.$p);
      $this->write_client_irc($this->fullnick($p['SRC']),'PRIVMSG',array($ircchan,$p['MSG']));
     }
     return TRUE;
+   case 'NOTICE':
+    $icare=0;
+    if ($this->am_joined($p['DST'])) $icare=1;
+    if ($p['DST']===$this->nick()) $icare=1;
+    if ($icare) {
+     $ircchan=$this->chan2ircwire($p['DST']);
+     $this->write_client_irc($this->fullnick($p['SRC']),'NOTICE',array($ircchan,$p['MSG']));
+    }
+    return TRUE;
    case 'ENC': return TRUE;
    case 'TOPIC':
     $this->set_channel_topic($p['DST'],$p['TOPIC'],$p['SRC']);
