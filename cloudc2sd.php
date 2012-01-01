@@ -362,9 +362,9 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
     $this->poll->add_alarm($time+10,'pingtimer');
     if ($this->last_ping>$this->last_pong+30)
      foreach ($this->config['channels'] as $name=>$channel)
-      $this->write_hub($this->udpmsg4_client->send_message($name,'BIG LAG',$this->nick()));
+      $this->write_hub($this->udpmsg4_client->send_message($name,'BIG LAG',$this->nick())->framed());
     if ($this->last_ping>$this->last_pong+60) {
-     $this->write_hub($this->udpmsg4_client->send_quit('too much lag ('.$this->last_ping.','.$this->last_pong.')',$this->nick()));
+     $this->write_hub($this->udpmsg4_client->send_quit('too much lag ('.$this->last_ping.','.$this->last_pong.')',$this->nick())->framed());
      die("server died");
     }
     if ($this->last_ping+60<$time) {
