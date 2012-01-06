@@ -330,6 +330,7 @@ debug('irc',1,'received: '.$p);
      } else {
       $msg=$p['SRC'].'> '.$p['MSG'];
      }
+     if (isset($this->config['badregexes'])) foreach ($this->config['badregexes'] as $regex) $msg=preg_replace($regex.'e','"[ ".implode(" ",str_split("$0"))." ]"',$msg);
      return $this->write_client_irc_from_client('PRIVMSG',array($ircchan,$msg));
     }
     return TRUE;

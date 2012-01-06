@@ -12,6 +12,10 @@ $config=array(
  'authtype'=>'nickserv2',
  'throttle'=>TRUE,
  'colors'=>TRUE,
+// 'badregexes'=>array(
+//  '/abadword/',
+//  '/a +bad +regex/',
+// ),
 // 'kickers'=>array(
 //  'chat/anonet'=>array('Anobot','nick'),
 // ),
