@@ -262,17 +262,18 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    case 'KICK':
     $kicker=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
     $kicked=$this->ircchannel2channel($this->fullnick2nick($p->args[1]));
-    foreach (explode(',',$p->args[0]) as $channel) {
-     $p=$this->udpmsg4_client->send_part($this->ircchannel2channel($channel),'kicked by '.$this->unmap_nick($kicker).': '.@$p->args[2],$this->unmap_nick($kicked));
-     if (!$this->write_hub($p->framed())) return FALSE;
+    foreach (explode(',',$p->args[0]) as $channel) {                                 $p2=$this->udpmsg4_client->send_part($this->ircchannel2channel($channel),'k
+icked by '.$this->unmap_nick($kicker).': '.@$p->args[2],$this->unmap_nick($kicke
+d));                                                                                 if (!$this->write_hub($p2->framed())) return FALSE;
     }
+    if ($p->args[1]===$this->config['nick']) die("kicked");
     return TRUE;
    case 'QUIT':
     $from=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
     $p=$this->udpmsg4_client->send_quit(@$p->args[0],$this->unmap_nick($from));
     return $this->write_hub($p->framed());
    case 'ERROR':
-    $p=$this->udpmsg4_client->send_quit('ERROR '.@$p->args[0],$this->nick());
+    $p=$this->udpmsg4_client->send_quit('ERROR '.preg_replace('/\[.*?\]/','',@$p->args[0]),$this->nick());
     $this->write_hub($p->framed());
     exit(1);
 /*
