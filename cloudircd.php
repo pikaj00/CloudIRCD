@@ -564,7 +564,7 @@ debug('irc',1,'received: '.$p);
     return TRUE;
    default:
 debug('udpmsg4',1,"received CMD=".$p['CMD']);
-    return FALSE;
+    return TRUE;
   }
  }
  function loop () {
