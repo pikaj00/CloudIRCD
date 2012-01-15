@@ -57,6 +57,8 @@ debug('irc',1,"sent: $data");
    $new->map_function=$new->config['nick_map_function'];
   if (isset($new->config['nick_unmap_function']))
    $new->unmap_function=$new->config['nick_unmap_function'];
+  if (!isset($new->config['priority'])) $new->config['priority']=0;
+  if (!isset($new->config['timeout'])) $new->config['timeout']=60;
   $new->hostname=$new->config['hostname'];
   $new->udpmsg4_client = new udpmsg4_client($new->config['udpmsg4_client']);
   if (!$new->irc_intro()) return FALSE;
@@ -341,6 +343,11 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
     return FALSE;
   }
  }
+ function send_status () {
+  $p=array('CMD'=>'X-srn.ano-relaystatus','SRC'=>$this->nick(),'lag'=>$this->last_ping-$this->last_pong,'priority'=>$this->config['priority']);
+  $p=$this->udpmsg4_client->create_frame($p);
+  return $p;
+ }
  function loop () {
   $this->poll->add_alarm(time()+60,'pingtimer');
   $this->last_ping=$this->last_pong=time();
@@ -361,18 +368,14 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
    case 'w': break;
    default:
     $time=time();
-    $this->poll->add_alarm($time+10,'pingtimer');
-    if ($this->last_ping>$this->last_pong+30)
-     foreach ($this->config['channels'] as $name=>$channel)
-      $this->write_hub($this->udpmsg4_client->send_notice($name,'BIG LAG',$this->nick())->framed());
-    if ($this->last_ping>$this->last_pong+60) {
-     $this->write_hub($this->udpmsg4_client->send_quit('too much lag ('.$this->last_ping.','.$this->last_pong.')',$this->nick())->framed());
+    $this->poll->add_alarm($time+5,'pingtimer');
+    $this->write_client_irc_from_client('PING',array('YouThere?'));
+    $this->write_hub($this->send_status()->framed());
+    if ($this->last_ping>$this->last_pong+$this->config['timeout']) {
+     $this->write_hub($this->udpmsg4_client->send_quit('too much lag ('.$this->last_ping.'-'.$this->last_pong.'>'.$this->config['timeout'].')',$this->nick())->framed());
      die("server died");
     }
-    if ($this->last_ping+60<$time) {
-     $this->last_ping=$time;
-     $this->write_client_irc_from_client('PING',array('YouThere?'));
-    }
+    $this->last_ping=$time;
     break;
   }
 echo "reached to end\n";
