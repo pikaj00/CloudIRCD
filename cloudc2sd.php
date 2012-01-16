@@ -275,7 +275,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     $p=$this->udpmsg4_client->send_quit(@$p->args[0],$this->unmap_nick($from));
     return $this->write_hub($p->framed());
    case 'ERROR':
-    $p=$this->udpmsg4_client->send_quit('ERROR '.preg_replace('/\[.*?\]/','',@$p->args[0]),$this->nick());
+    $p=$this->udpmsg4_client->send_quit('ERROR '.preg_replace('/(?:\(|\[)[^ ]*?(?:\(|\])/','',@$p->args[0]),$this->nick());
     $this->write_hub($p->framed());
     exit(1);
 /*
