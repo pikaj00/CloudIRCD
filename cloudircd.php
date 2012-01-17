@@ -403,7 +403,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!is_a($p,'irc_packet')) $p=irc_packet::parse($p);
   if (($p===FALSE)||($p===NULL)) return $p;
-  switch (strtouper($p->cmd)) {
+  switch (strtoupper($p->cmd)) {
    case 'PRIVMSG':
     if (!isset($p->args[0])||!isset($p->args[1])) return FALSE;
     $to=$this->ircwire2chan($p->args[0]);
