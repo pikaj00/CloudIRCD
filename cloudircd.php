@@ -158,17 +158,17 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   for ($done=0; !$done;) {
    if (($p=self::irc_parse($this->client_buffer,$this->client[0],1))===FALSE) return FALSE;
    if ($p===NULL) die("This should not happen.");
-   if ($p->cmd==='PASS') {
+   if (strtoupper($p->cmd)==='PASS') {
     list ($seckey,$pubkey) = explode('/',$p->args[0]);
     if (!strlen($pubkey)) return FALSE;
     $this->udpmsg4_client->set_keypair($pubkey,$seckey);
     continue;
    }
-   if ($p->cmd==='USER') continue;
-   if ($p->cmd==='NICK')
+   if (strtoupper($p->cmd)==='USER') continue;
+   if (strtoupper($p->cmd)==='NICK')
     if ($this->irc_set_ircnick($p->args[0])!==FALSE) $done=1;
     else $this->write_client_irc_from_server('432',array($this->chan2ircwire('/'.$this->config['ircnet'].'/randomnick'),$p->args[0],'Erroneus nickname'));
-   else if ($p->cmd==='MODE')
+   else if (strtoupper($p->cmd)==='MODE')
     $this->write_client_irc_from_server('451',array('MODE','You have not registered'));
    else $this->complain($p);
   }
@@ -403,7 +403,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!is_a($p,'irc_packet')) $p=irc_packet::parse($p);
   if (($p===FALSE)||($p===NULL)) return $p;
-  switch ($p->cmd) {
+  switch (strtouper($p->cmd)) {
    case 'PRIVMSG':
     if (!isset($p->args[0])||!isset($p->args[1])) return FALSE;
     $to=$this->ircwire2chan($p->args[0]);
