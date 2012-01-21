@@ -478,6 +478,10 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     $this->set_channel_topic($channel,$p->args[1]);
     $tp=$this->udpmsg4_client->send_topic($channel,$p->args[1]);
     return $this->write_hub($tp->framed()) && $this->write_client_irc_topic($this->chan2ircwire($this->nick()),$channel,$p->args[1]);
+   case 'AWAY':
+    if (!isset($p->args[0]))
+     return $this->write_client_numeric('305',array('You are no longer marked as being away'));
+    return $this->write_client_numeric('306',array('You have been marked as being away but not matters'));
    default:
 debug('irc',1,'received: '.$p);
     return FALSE;
