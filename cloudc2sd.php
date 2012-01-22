@@ -227,14 +227,14 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     $p2=$this->udpmsg4_client->send_message($this->unmap_nick($to),$p->args[1],$this->unmap_nick($from));
     $r=$this->write_hub($p2->framed());
     if (!$r) return $r;
-    if (preg_match('/^!kick (.*)/',$p->args[1],$m)) {
+    if (preg_match('/^'.$this->config['nick'].': kick (.*)/',$p->args[1],$m)) {
      if (isset($this->config['kickers'][$this->unmap_nick($to)]) && in_array($fromnick,$this->config['kickers'][$this->unmap_nick($to)])) {
       $this->config['kicked'][$this->unmap_nick($to)][$this->unmap_nick($m[1])]=array('time'=>time(),'kicker'=>$p->prefix);
       return $this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"kicked"));
      } else {
       return $this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"not a kicker"));
      }
-    } else if (preg_match('/^!kicks( -a)?$/',$p->args[1],$m)) {
+    } else if (preg_match('/^'.$this->config['nick'].': kicks( -a)?$/',$p->args[1],$m)) {
      if (strlen(@$m[1]))
       foreach ($this->config['kicked'] as $chan=>$kicks) {
        if (!$this->write_client_irc_from_client('PRIVMSG',array($this->channel2ircchannel($to),"kicks in $chan"))) return FALSE;
