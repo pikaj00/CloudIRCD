@@ -297,6 +297,7 @@ debug('irc',1,'received: '.$p);
     if ($p->args[2]==='u') exit(2);
     return TRUE;
    case '404':
+   case '405':
    case '474':
     exit(2);
   }
