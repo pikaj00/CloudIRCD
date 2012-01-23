@@ -299,6 +299,10 @@ debug('irc',1,'received: '.$p);
    case '404':
    case '405':
    case '474':
+    $p2=$this->udpmsg4_client->send_quit($p,$this->nick());
+    $this->write_hub($p2->framed());
+    $this->write_client_irc_from_client('QUIT',array($p));
+    sleep(1);
     exit(2);
   }
  }
