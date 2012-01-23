@@ -294,7 +294,13 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
 debug('irc',1,'received: '.$p);
     return FALSE;
    case 'KICK':
-    if ($p->args[2]==='u') exit(2);
+    if ($p->args[2]==='u') {
+     $p2=$this->udpmsg4_client->send_quit($p,$this->nick());
+     $this->write_hub($p2->framed());
+     $this->write_client_irc_from_client('QUIT',array($p));
+     sleep(1);
+     exit(2);
+    }
     return TRUE;
    case '404':
    case '405':
