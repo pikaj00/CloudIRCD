@@ -5,7 +5,7 @@ echo "accept all of the defaults and test first before that you reconfigure" >&2
 echo "for production." >&2
 echo >&2
 
-true "${def_ircnet:=test}" "${def_hostname:=localhost}" "${def_ircdip:=127.0.0.1}" "${def_ircdport:=6667}" "${def_hubip:=1.0.27.111}"
+true "${def_ircnet:=test}" "${def_hostname:=localhost}" "${def_ircdip:=127.0.0.1}" "${def_ircdport:=6667}" "${def_hubip:=1.0.27.120}"
 
 echo -n "IRCnet [$def_ircnet]: " >&2; read ircnet;
 echo -n "hostname [$def_hostname]: " >&2; read hostname;

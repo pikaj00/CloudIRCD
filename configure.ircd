@@ -9,7 +9,7 @@ oldircnet_default=test
 if [ -r env/ircnet ]; then
  oldircnet_default="`cat env/ircnet`"
 fi
-true "${def_ircnet:=test}" "${def_oldircnet:=$oldircnet_default}" "${def_hostname:=localhost}" "${def_ip:=127.0.0.1}" "${def_hubip:=1.0.27.111}"
+true "${def_ircnet:=test}" "${def_oldircnet:=$oldircnet_default}" "${def_hostname:=localhost}" "${def_ip:=127.0.0.1}" "${def_hubip:=1.0.27.120}"
 
 echo -n "IRCnet [$def_ircnet]: " >&2; read ircnet;
 echo -n "Old IRCnet [$def_oldircnet]: " >&2; read oldircnet;
