@@ -59,6 +59,7 @@ debug('irc',1,"sent: $data");
    $new->unmap_function=$new->config['nick_unmap_function'];
   if (!isset($new->config['priority'])) $new->config['priority']=0;
   if (!isset($new->config['timeout'])) $new->config['timeout']=60;
+  if (!isset($new->config['admin'])) $new->config['admin']='/NNNC/somerandomnick';
   $new->hostname=$new->config['hostname'];
   $new->udpmsg4_client = new udpmsg4_client($new->config['udpmsg4_client']);
   if (!$new->irc_intro()) return FALSE;
@@ -139,8 +140,10 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
        $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['pass']."\r\n");
        break;
      }
-    foreach ($this->config['channels'] as $name=>$channel)
+    foreach ($this->config['channels'] as $name=>$channel) {
      $this->irc_join($name);
+     $this->write_client_irc_from_client('NOTICE',array($this->channel2ircchannel($name),'cloudc2sd admin '.$this->config['admin'].' if problems /msg '.$this->config['nick'].' !complain you suck :-)'));
+    }
     $done=1;
    } else if ($p->cmd==='PING')
     if ($this->write_client_irc_from_client('PONG',array($p->args[0]))===FALSE) return FALSE;
@@ -216,6 +219,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     $from=$this->ircchannel2channel($fromnick);
     if ($to[0]==='/') {
 //     return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"PMs not supported still"));
+     if (preg_match('/^!complain (.*)$/',$p->args[1],$m))
+      $p->args[1]=$this->config['admin'].': '.$m[1];
      $parts = explode(': ',$p->args[1],2);
      if (!isset($parts[1]) || !preg_match('#^[ @.]*(.*)$#',$parts[0],$m) || preg_match('/\s/',$parts[0]))
       return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"You can chat to cloud users through me.  The format is '/path/to/destination: message' :-)"));
