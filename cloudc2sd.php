@@ -62,7 +62,7 @@ debug('irc',1,"sent: $data");
   if (!isset($new->config['timeout'])) $new->config['timeout']=60;
   if (!isset($new->config['admin'])) $new->config['admin']='/NNNC/somerandomnick';
   if (!isset($new->config['nicks'])) $new->config['nicks']=array($new->config['nick'],$new->config['nick'].'bak1',$new->config['nick'].'bak2');
-  $this->last_relay_alive_time=time();
+  $new->last_relay_alive_time=time();
   $new->hostname=$new->config['hostname'];
   $new->udpmsg4_client = new udpmsg4_client($new->config['udpmsg4_client']);
   if (!$new->irc_intro()) return FALSE;
