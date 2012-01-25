@@ -340,6 +340,9 @@ debug('irc',1,'received: '.$p);
   if (!isset($p['CMD'])) return TRUE;
   if ($this->config['nick']!==$this->config['nicks'][0]) {
    switch($p['CMD']) {
+    case 'X-srn.ano-relaystatus':
+     if ($this->ircchannel2channel($this->config['nicks'][0])===$p['SRC'])
+      $this->last_relay_alive_time=time();
    }
    return TRUE;
   }
