@@ -310,6 +310,7 @@ debug('irc',1,'received: '.$p);
    case '404':
    case '405':
    case '474':
+    if (!isset($this->config['channels'][$this->channel2ircchannel($p->args[1])])) return TRUE;
     $p2=$this->udpmsg4_client->send_quit($p,$this->nick());
     $this->write_hub($p2->framed());
     $this->write_client_irc_from_client('QUIT',array($p));
