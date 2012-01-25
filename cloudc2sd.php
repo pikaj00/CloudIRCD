@@ -133,7 +133,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    if ($p->cmd==='NICK') $this->ircnick=$p->args[0];
    else if ($p->cmd==='432') die("IRC ERROR: bad nick");
    else if ($p->cmd==='433') {
-    array_pop($nicks);
+    array_shift($nicks);
     if (!count($nicks)) die("IRC ERROR: nicks used");
     $this->write_client("NICK ".$nicks[0]."\r\n");
    } else if ($p->cmd==='001') {
