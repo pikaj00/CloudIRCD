@@ -60,6 +60,7 @@ debug('irc',1,"sent: $data");
   if (!isset($new->config['priority'])) $new->config['priority']=0;
   if (!isset($new->config['timeout'])) $new->config['timeout']=60;
   if (!isset($new->config['admin'])) $new->config['admin']='/NNNC/somerandomnick';
+  if (!isset($new->config['nicks'])) $new->config['nicks']=array($new->config['nick'],$new->config['nick'].'bak1',$new->config['nick'].'bak2');
   $new->hostname=$new->config['hostname'];
   $new->udpmsg4_client = new udpmsg4_client($new->config['udpmsg4_client']);
   if (!$new->irc_intro()) return FALSE;
@@ -123,14 +124,21 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   return TRUE;
  }
  function irc_intro () {
+  $nicks=$this->config['nicks'];
   $this->write_client("USER u u u u\r\n");
-  $this->write_client("NICK ".$this->config['nick']."\r\n");
+  $this->write_client("NICK ".$nicks[0]."\r\n");
   for ($done=0; !$done;) {
    if (($p=self::irc_parse($this->client_buffer,$this->client[0],1))===FALSE) return FALSE;
    if ($p===NULL) die("This should not happen.");
    if ($p->cmd==='NICK') $this->ircnick=$p->args[0];
    else if ($p->cmd==='432') die("IRC ERROR: bad nick");
-   else if ($p->cmd==='001') {
+   else if ($p->cmd==='433') {
+    array_pop($nicks);
+    if (!count($nicks)) die("IRC ERROR: nicks used");
+    $this->write_client("NICK ".$nicks[0]."\r\n");
+   } else if ($p->cmd==='001') {
+    $this->config['nick']=$nicks[0];
+    $this->config['starttime']=time();
     if (strlen(@$this->config['pass']))
      switch(@$this->config['authtype']) {
       case 'nickserv1':
@@ -294,6 +302,13 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     return $this->write_client_irc_from_client('PONG',array($p->args[0]));
    case 'PONG':
     $this->last_pong=time();
+    if ($this->last_relay_alive_time+10<$this->last_pong) {
+     if (preg_match('/^nickserv/',$this->config['authtype'])) {
+      $this->write_client("PRIVMSG NickServ :GHOST ".$this->config['nicks'][0]." ".$this->config['pass']."\r\n");
+      $this->write_client("NICK :".$this->config['nicks'][0]."\r\n");
+      $this->config['nick']=$this->config['nicks'][0];
+     } else die("try again");
+    }
     return TRUE;
    default:
 debug('irc',1,'received: '.$p);
@@ -323,6 +338,11 @@ debug('irc',1,'received: '.$p);
   if (!is_a($p,'udpmsg4_packet')) $p=udpmsg4_packet::parse($p);
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!isset($p['CMD'])) return TRUE;
+  if ($this->config['nick']!==$this->config['nicks'][0]) {
+   switch($p['CMD']) {
+   }
+   return TRUE;
+  }
   switch($p['CMD']) {
    case 'JOIN':
     if (isset($this->config['kicked'][$p['DST']][$p['SRC']])) {
