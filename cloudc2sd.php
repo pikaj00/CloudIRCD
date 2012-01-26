@@ -150,9 +150,11 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
        $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['pass']."\r\n");
        break;
      }
-    foreach ($this->config['channels'] as $name=>$channel) {
-     $this->irc_join($name);
-     $this->write_client_irc_from_client('NOTICE',array($this->channel2ircchannel($name),'cloudc2sd admin '.$this->config['admin'].' if problems /msg '.$this->config['nick'].' !complain you suck :-)'));
+    if ($this->config['nick']===$this->config['nicks'][0]) {
+     foreach ($this->config['channels'] as $name=>$channel) {
+      $this->irc_join($name);
+      $this->write_client_irc_from_client('NOTICE',array($this->channel2ircchannel($name),'cloudc2sd admin '.$this->config['admin'].' if problems /msg '.$this->config['nick'].' !complain you suck :-)'));
+     }
     }
     $done=1;
    } else if ($p->cmd==='PING')
@@ -233,7 +235,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
       $p->args[1]=$this->config['admin'].': '.$m[1];
      $parts = explode(': ',$p->args[1],2);
      if (!isset($parts[1]) || !preg_match('#^[ @.]*(.*)$#',$parts[0],$m) || preg_match('/\s/',$parts[0]))
-      return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"You can chat to cloud users through me.  The format is '/path/to/destination: message' :-)"));
+      return $this->write_client_irc_from_client('NOTICE',array($fromnick,"You can chat to cloud users through me.  The format is '/path/to/destination: message' :-)"));
      $p=$this->udpmsg4_client->send_message($this->unmap_nick($m[1]),$parts[1],$this->unmap_nick($from));
      if (($p!==FALSE) && !$this->write_hub($p->framed()))
       return $this->write_client_irc_from_client('PRIVMSG',array($fromnick,"Your PM to $parts[0] failed.  Usually this is because that you typed the destination wrong or because that the destination not supports end-to-end encrypted PMs."));
@@ -308,12 +310,16 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      if ($this->last_relay_alive_time+10<$this->last_pong) {
       if (preg_match('/^nickserv/',@$this->config['authtype'])) {
        $this->write_client("PRIVMSG NickServ :GHOST ".$this->config['nicks'][0]." ".$this->config['pass']."\r\n");
+       sleep(1);
        $this->write_client("NICK :".$this->config['nicks'][0]."\r\n");
        $this->config['nick']=$this->config['nicks'][0];
       } else die("try again");
      }
     }
     else $this->last_relay_alive_time=$this->last_pong;
+    return TRUE;
+   case '433':
+    if ($this->config['nick']===$p->args[1]) $this->config['nick']=$p->args[0];
     return TRUE;
    default:
 debug('irc',1,'received: '.$p);
