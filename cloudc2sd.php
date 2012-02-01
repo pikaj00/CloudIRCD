@@ -128,6 +128,8 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   return TRUE;
  }
  function irc_intro () {
+  if (isset($this->config['connectpass']))
+   $this->write_client("PASS ".$this->config['connectpass']."\r\n");
   $nicks=$this->config['nicks'];
   $this->write_client("USER u u ".(isset($this->config['ircdhost'])?$this->config['ircdhost']:'u')." :u\r\n");
   $this->write_client("NICK ".$nicks[0]."\r\n");
