@@ -7,6 +7,7 @@ $config=array(
  ),
  'ircnet'=>getenv('ircnet'),
  'hostname'=>getenv('hostname'),
+ 'ircdhost'=>getenv('ircdhost'),
  'nick'=>'u',
 // 'pass'=>'strongpassword',
  'authtype'=>'nickserv2',

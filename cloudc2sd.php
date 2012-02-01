@@ -54,6 +54,8 @@ debug('irc',1,"sent: $data");
    $new->config['ircnet']=$new->config['udpmsg4_client']['netname'];
   if (!isset($new->config['hostname']))
    $new->config['hostname']='cloudc2sd';
+  if (!isset($new->config['ircdhost']))
+   $new->config['ircdhost']=getenv('ircdip');
   if (isset($new->config['nick_map_function']))
    $new->map_function=$new->config['nick_map_function'];
   if (isset($new->config['nick_unmap_function']))
@@ -127,7 +129,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
  }
  function irc_intro () {
   $nicks=$this->config['nicks'];
-  $this->write_client("USER u u u u\r\n");
+  $this->write_client("USER u u ".(isset($this->config['ircdhost'])?$this->config['ircdhost']:'u')." :u\r\n");
   $this->write_client("NICK ".$nicks[0]."\r\n");
   for ($done=0; !$done;) {
    if (($p=self::irc_parse($this->client_buffer,$this->client[0],1))===FALSE) return FALSE;
