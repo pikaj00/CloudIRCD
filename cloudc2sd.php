@@ -150,9 +150,9 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
        $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['pass']."\r\n");
        break;
      }
-    if ($this->config['nick']===$this->config['nicks'][0]) {
-     foreach ($this->config['channels'] as $name=>$channel) {
-      $this->irc_join($name);
+    foreach ($this->config['channels'] as $name=>$channel) {
+     $this->irc_join($name);
+     if ($this->config['nick']===$this->config['nicks'][0]) {
       $this->write_client_irc_from_client('NOTICE',array($this->channel2ircchannel($name),'cloudc2sd admin '.$this->config['admin'].' if problems /msg '.$this->config['nick'].' !complain you suck :-)'));
      }
     }
