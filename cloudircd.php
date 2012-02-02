@@ -238,16 +238,19 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $this->write_client_numeric('421',array($packet->cmd,'Unknown command'));
  }
  function channel2ircchannel ($channel) {
+  if (!strlen($channel)) return FALSE;
   if ($channel[0]==='/') return $channel;
   if (!preg_match(',^chat/,',$channel)) return FALSE;
   return preg_replace(',^chat/,','#',$channel);
  }
  function is_channel ($channel) {
+  if (!strlen($channel)) return TRUE;
   if ($channel[0]==='/') return FALSE;
   if (preg_match(',^chat/,',$channel)) return TRUE;
   return FALSE;
  }
  function ircchannel2channel ($channel) {
+  if (!strlen($channel)) return FALSE;
   if ($channel[0]==='/') return $channel;
   return preg_replace('/^#/','chat/',$channel);
  }
