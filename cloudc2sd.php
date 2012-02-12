@@ -90,7 +90,7 @@ debug('irc',1,"sent: $data");
    if ($p===FALSE) return FALSE;
    else if ($p===NULL)
     if (!$trymore) return NULL;
-    else return self::irc_parse($buffer,$func,$fd,$trymore);
+    else return self::irc_parse($buffer,$fd,$trymore);
    else return $p;
   }
 die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
