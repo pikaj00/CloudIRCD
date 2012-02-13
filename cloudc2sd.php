@@ -127,6 +127,17 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   $this->write_client("JOIN ".$this->channel2ircchannel($channel)."\r\n");
   return TRUE;
  }
+ function irc_auth () {
+  if (strlen(@$this->config['pass']))
+   switch(@$this->config['authtype']) {
+    case 'nickserv1':
+     $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['nick']." ".$this->config['pass']."\r\n");
+     break;
+    case 'nickserv2':
+     $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['pass']."\r\n");
+     break;
+   }
+ }
  function irc_intro () {
   if (isset($this->config['connectpass']))
    $this->write_client("PASS ".$this->config['connectpass']."\r\n");
@@ -145,15 +156,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    } else if ($p->cmd==='001') {
     $this->config['nick']=$nicks[0];
     $this->config['starttime']=time();
-    if (strlen(@$this->config['pass']))
-     switch(@$this->config['authtype']) {
-      case 'nickserv1':
-       $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['nick']." ".$this->config['pass']."\r\n");
-       break;
-      case 'nickserv2':
-       $this->write_client("PRIVMSG NickServ :IDENTIFY ".$this->config['pass']."\r\n");
-       break;
-     }
+    $this->irc_auth();
     foreach ($this->config['channels'] as $name=>$channel) {
      $this->irc_join($name);
      if ($this->config['nick']===$this->config['nicks'][0]) {
@@ -317,6 +320,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
        sleep(1);
        $this->write_client("NICK :".$this->config['nicks'][0]."\r\n");
        $this->config['nick']=$this->config['nicks'][0];
+       $this->irc_auth();
       } else die("try again");
      }
     }
