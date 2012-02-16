@@ -31,6 +31,9 @@ debug('irc',1,"line=$line");
   foreach ($this->args as $k=>$arg)
    $this->args[$k]=str_replace(array("\n","\r"),'',$arg);
  }
+ function CMD () {
+  return strtoupper($this->cmd);
+ }
  function __toString () {
   $parts=array();
   if (isset($this->prefix)) $parts[]=':'.$this->prefix;
@@ -40,6 +43,13 @@ debug('irc',1,"line=$line");
   $r=join(' ',$parts);
   if (isset($last)) $r.=' :'.$last;
   return $r;
+ }
+ function __get ($field) {
+  switch($field) {
+   case 'CMD':
+    return $this->CMD();
+  }
+  return FALSE;
  }
 }
 
