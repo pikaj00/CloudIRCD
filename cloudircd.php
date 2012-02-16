@@ -366,6 +366,14 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    unset($this->config['channels'][$channel]['users'][$nick]);
   return TRUE;
  }
+ function quit_user ($nick,&$icare) {
+  foreach ($this->config['channels'] as $k=>$channel)
+   if ($this->user_is_joined($nick,$k)) {
+    $this->part_user_from_channel($nick,$k);
+    if ($this->am_joined($k)) $icare=1;
+   }
+  return TRUE;
+ }
  function am_joined ($channel) {
   if (!isset($this->config['channels'])) return FALSE;
   if (!isset($this->config['channels'][$channel])) return FALSE;
@@ -510,6 +518,11 @@ debug('irc',1,'received: '.$p);
     if ($this->user_is_joined($p['SRC'],$p['DST']))
      return TRUE;
    case 'JOIN':
+    if ($this->user_is_joined($p['SRC'],$p['DST'])) {
+     $icare=0;
+     $this->quit_user($p['SRC'],$icare);
+     if ($icare) $this->write_client_irc_quit($p['SRC'],'received JOIN to '.$p['DST']);
+    }
     if (!$this->user_is_joined($p['SRC'],$p['DST']))
      $this->join_user_to_channel($p['SRC'],$p['DST']);
     $icare=0;
@@ -531,11 +544,7 @@ debug('irc',1,'received: '.$p);
     return TRUE;
    case 'QUIT':
     $icare=0;
-    foreach ($this->config['channels'] as $k=>$channel)
-     if ($this->user_is_joined($p['SRC'],$k)) {
-      $this->part_user_from_channel($p['SRC'],$k);
-      if ($this->am_joined($k)) $icare=1;
-     }
+    $this->quit_user($p['SRC'],$icare);
     if ($icare) $this->write_client_irc_quit($p['SRC'],$p['REASON']);
     return TRUE;
    case 'MSG':
