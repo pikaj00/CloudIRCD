@@ -473,6 +473,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      $count=count($this->users_in_channel($channel));
      if (!$this->write_client_numeric('322',array($ircchannel,$count,'[+nt]'))) return FALSE;
     }
+    if (!$this->write_client_numeric('323',array('End of channel list.'))) return FALSE;
     return TRUE;
    case 'USER':
     return TRUE;
