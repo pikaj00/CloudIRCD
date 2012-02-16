@@ -414,18 +414,18 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
   if (($p===FALSE)||($p===NULL)) return $p;
   if (!is_a($p,'irc_packet')) $p=irc_packet::parse($p);
   if (($p===FALSE)||($p===NULL)) return $p;
-  switch (strtoupper($p->cmd)) {
+  switch ($p->CMD) {
    case 'PRIVMSG':
    case 'NOTICE':
     if (!isset($p->args[0])||!isset($p->args[1])) return FALSE;
     $to=$this->ircwire2chan($p->args[0]);
-    if ($p->cmd==='PRIVMSG')
+    if ($p->CMD==='PRIVMSG')
      $tp=$this->udpmsg4_client->send_message($to,$p->args[1]);
     else
      $tp=$this->udpmsg4_client->send_notice($to,$p->args[1]);
     if ($tp===FALSE)
      if ($this->is_channel($to))
-      return $this->write_client_irc($p->args[0],'NOTICE',array($this->nick(),'Failed to send '.($p->cmd==='PRIVMSG'?'message':'notice').' to '.$p->args[0]));
+      return $this->write_client_irc($p->args[0],'NOTICE',array($this->nick(),'Failed to send '.($p->CMD==='PRIVMSG'?'message':'notice').' to '.$p->args[0]));
      else
       return $this->write_client_irc($p->args[0],'NOTICE',array($this->nick(),'Failed to send PM to '.$p->args[0]));
     return $this->write_hub($tp->framed());
