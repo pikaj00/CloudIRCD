@@ -533,6 +533,7 @@ debug('irc',1,'received: '.$p);
     return TRUE;
    case 'PART':
     if ($p['BC']) return TRUE;
+    if ($this->nick()===$p['SRC']) return TRUE;
     $icare=0;
     if ($this->user_is_joined($p['SRC'],$p['DST'])) {
      $this->part_user_from_channel($p['SRC'],$p['DST']);
@@ -544,6 +545,7 @@ debug('irc',1,'received: '.$p);
     }
     return TRUE;
    case 'QUIT':
+    if ($this->nick()===$p['SRC']) return TRUE;
     $icare=0;
     $this->quit_user($p['SRC'],$icare);
     if ($icare) $this->write_client_irc_quit($p['SRC'],$p['REASON']);
@@ -598,7 +600,7 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
      break;
     } else if ($value===$this->hub[0]) {
      for ($p=$this->udpmsg4_parse($this->hub_buffer,$this->hub[0]); $p!==NULL; $p=$this->udpmsg4_parse($this->hub_buffer))
-      if ($p===FALSE) return FALSE;
+      if ($p===FALSE) $this->write_client_irc_from_server('NOTICE',array($this->nick(),'Received bad packet from cloud'));
       else if ($this->udpmsg4_do($p)===FALSE) $this->complain($p);
      break;
     }

@@ -292,7 +292,11 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      $p2=$this->udpmsg4_client->send_part($this->ircchannel2channel($channel),'kicked by '.$this->unmap_nick($kicker).': '.@$p->args[2],$this->unmap_nick($kicked));
      if (!$this->write_hub($p2->framed())) return FALSE;
     }
-    if ($p->args[1]===$this->config['nick']) die("kicked");
+    if ($p->args[1]===$this->config['nick']) {
+     $p=$this->udpmsg4_client->send_quit('kicked from '.$this->ircchannel2channel($channel).' by '.$this->unmap_nick($kicker),$this->unmap_nick($from));
+     if (!$this->write_hub($p2->framed())) return FALSE;
+     die("kicked");
+    }
     return TRUE;
    case 'QUIT':
     $from=$this->ircchannel2channel($this->fullnick2nick($p->prefix));
@@ -399,6 +403,7 @@ debug('irc',1,'received: '.$p);
    case 'ENC': return TRUE;
    default:
 debug('udpmsg4',1,"received CMD=".$p['CMD']);
+    return TRUE;
     return FALSE;
   }
  }
