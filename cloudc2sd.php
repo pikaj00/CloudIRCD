@@ -293,9 +293,11 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
      if (!$this->write_hub($p2->framed())) return FALSE;
     }
     if ($p->args[1]===$this->config['nick']) {
-     $p=$this->udpmsg4_client->send_quit('kicked from '.$this->ircchannel2channel($channel).' by '.$this->unmap_nick($kicker),$this->unmap_nick($from));
-     if (!$this->write_hub($p2->framed())) return FALSE;
-     die("kicked");
+     $p2=$this->udpmsg4_client->send_quit('kicked from '.$this->ircchannel2channel($channel).' by '.$this->unmap_nick($kicker),$this->nick());
+     $this->write_hub($p2->framed());
+     $this->write_client_irc_from_client('QUIT',array($p));
+     sleep(1);
+     exit(2);
     }
     return TRUE;
    case 'QUIT':
@@ -336,15 +338,6 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
    default:
 debug('irc',1,'received: '.$p);
     return FALSE;
-   case 'KICK':
-    if ($p->args[2]==='u') {
-     $p2=$this->udpmsg4_client->send_quit($p,$this->nick());
-     $this->write_hub($p2->framed());
-     $this->write_client_irc_from_client('QUIT',array($p));
-     sleep(1);
-     exit(2);
-    }
-    return TRUE;
    case '404':
    case '405':
    case '474':
