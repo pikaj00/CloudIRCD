@@ -417,8 +417,7 @@ debug('udpmsg4',1,"received CMD=".$p['CMD']);
      break;
     } else if ($value===$this->hub[0]) {
      for ($p=$this->udpmsg4_parse($this->hub_buffer,$this->hub[0]); $p!==NULL; $p=$this->udpmsg4_parse($this->hub_buffer))
-      if ($p===FALSE) return FALSE;
-      else if ($this->udpmsg4_do($p)===FALSE) $this->complain($p);
+      if (($p===FALSE) || ($this->udpmsg4_do($p)===FALSE)) $this->complain($p);
      break;
     }
     break;
