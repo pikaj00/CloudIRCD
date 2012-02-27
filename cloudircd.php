@@ -125,7 +125,7 @@ die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
     else return $this->udpmsg4_parse($buffer,$func,$fd,$trymore);
    else return $this->udpmsg4_client->read_compat($p);
   }
-die("This is reached if strlen(\$buffer)===0 that is EOF.\n");
+die("ERROR :Closing Link: ".$this->chan2ircwire($this->nick())." (lost hub)\n");
   return $p;
   return self::buffered_parse($buffer,array($this->udpmsg4_client,'parse_framed'),$fd,$trymore);
  }
