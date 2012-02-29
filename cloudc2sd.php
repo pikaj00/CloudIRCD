@@ -21,7 +21,10 @@ class cloudc2sd {
  var $last_pong=NULL;
  var $last_relay_alive_time;
  static function write_fd ($fd,$data,$tlen=0) {
-  if (($len=fwrite($fd,$data))===FALSE) return FALSE;
+  $len=fwrite($fd,$data);
+  // rtfm it claims should return FALSE for error but returns 0
+  if ($len===0) $len=FALSE;
+  if ($len===FALSE) return FALSE;
   if ($len<=0) return $tlen;
   if ($len===strlen($data)) return $tlen+$len;
   return self::write_fd($fd,substr($data,$len),$tlen+$len);
