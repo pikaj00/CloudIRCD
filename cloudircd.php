@@ -20,16 +20,21 @@ class cloudircd {
  var $map_function=NULL;
  var $unmap_function=NULL;
  static function write_fd ($fd,$data,$tlen=0) {
-  if (($len=fwrite($fd,$data))<=0) return $tlen;
+  if (($len=fwrite($fd,$data))===FALSE) return FALSE;
+  if ($len<=0) return $tlen;
   if ($len===strlen($data)) return $tlen+$len;
   return self::write_fd($fd,substr($data,$len),$tlen+$len);
  }
  function write_hub ($data) {
-  if (self::write_fd($this->hub[1],$data)!=strlen($data)) return FALSE;
+  $len=self::write_fd($this->hub[1],$data);
+  if ($len===FALSE) die("write error to hub");
+  if ($len!=strlen($data)) return FALSE;
   return TRUE;
  }
  function write_client ($data) {
-  if (self::write_fd($this->client[1],$data)!=strlen($data)) return FALSE;
+  $len=self::write_fd($this->client[1],$data);
+  if ($len===FALSE) die("write error to client");
+  if ($len!=strlen($data)) return FALSE;
 debug('irc',1,"sent: $data");
   return TRUE;
  }
