@@ -2,7 +2,7 @@
 
 function debug ($sub,$pri,$str) { fprintf(STDERR,getmypid().":$sub:$pri [%s]\n",$str); }
 
-include 'libudpmsg4.php';
+include 'php/libudpmsg4.php';
 
 include 'poll.php';
 
